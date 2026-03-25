@@ -1,0 +1,36 @@
+:root {
+  --bp-font-sans: 'IBM Plex Sans', sans-serif;
+  --bp-bg: #eef4ef;
+  --bp-bg-accent: rgba(127, 209, 186, 0.26);
+  --bp-surface: rgba(255, 255, 255, 0.9);
+  --bp-surface-strong: #0f2734;
+  --bp-border: rgba(18, 42, 56, 0.1);
+  --bp-text-primary: #132a38;
+  --bp-text-muted: rgba(19, 42, 56, 0.66);
+  --bp-shadow: 0 24px 60px rgba(12, 28, 40, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--bp-font-sans);
+  color: var(--bp-text-primary);
+  background:
+    radial-gradient(circle at top left, var(--bp-bg-accent), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(198, 232, 147, 0.28), transparent 24%),
+    var(--bp-bg);
+}
+
+a {
+  color: inherit;
+}

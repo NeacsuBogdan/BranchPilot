@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: branchpilot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${BRANCHPILOT_POSTGRES_DB:-branchpilot}
+      POSTGRES_USER: ${BRANCHPILOT_POSTGRES_USER:-branchpilot}
+      POSTGRES_PASSWORD: ${BRANCHPILOT_POSTGRES_PASSWORD:-branchpilot}
+    ports:
+      - '${BRANCHPILOT_POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - branchpilot-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${BRANCHPILOT_POSTGRES_USER:-branchpilot} -d ${BRANCHPILOT_POSTGRES_DB:-branchpilot}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: branchpilot-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '${BRANCHPILOT_REDIS_PORT:-6379}:6379'
+    volumes:
+      - branchpilot-redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  branchpilot-postgres:
+  branchpilot-redis:

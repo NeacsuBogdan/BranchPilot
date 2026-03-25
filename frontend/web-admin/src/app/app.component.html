@@ -1,0 +1,46 @@
+<div class="shell">
+  <aside class="shell__sidebar">
+    <div class="brand">
+      <div class="brand__badge">BP</div>
+      <div>
+        <p class="brand__eyebrow">Business operations platform</p>
+        <h1>BranchPilot</h1>
+      </div>
+    </div>
+
+    <mat-nav-list class="shell__nav">
+      @for (item of navigation(); track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/overview' }"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+          <span matListItemLine>{{ item.caption }}</span>
+        </a>
+      }
+    </mat-nav-list>
+
+    <p class="shell__stage">Bootstrap foundation for the multi-tenant platform.</p>
+  </aside>
+
+  <section class="shell__workspace">
+    <header class="workspace__header">
+      <div>
+        <p class="workspace__eyebrow">{{ activeSection().caption }}</p>
+        <h2>{{ activeSection().label }}</h2>
+      </div>
+
+      <a mat-stroked-button href="http://localhost:7247/swagger" rel="noreferrer" target="_blank">
+        <mat-icon>open_in_new</mat-icon>
+        <span>API docs</span>
+      </a>
+    </header>
+
+    <main class="workspace__content">
+      <router-outlet />
+    </main>
+  </section>
+</div>

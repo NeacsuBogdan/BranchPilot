@@ -1,0 +1,67 @@
+<section class="hero">
+  <div class="hero__content">
+    <p class="hero__eyebrow">Stage 0</p>
+    <h1>Professional bootstrap for a portfolio-grade operations platform.</h1>
+    <p>
+      BranchPilot now has a disciplined Angular and .NET foundation with containerized local
+      dependencies, API diagnostics, and the delivery tooling needed for the next staged features.
+    </p>
+  </div>
+
+  <mat-chip-set>
+    @for (item of stageMarkers(); track item) {
+      <mat-chip>{{ item }}</mat-chip>
+    }
+  </mat-chip-set>
+</section>
+
+<section class="cards-grid">
+  @for (item of highlights(); track item.title) {
+    <mat-card appearance="outlined" class="feature-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>{{ item.icon }}</mat-icon>
+        <mat-card-title>{{ item.title }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ item.description }}</p>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>
+
+<section class="details-grid">
+  <mat-card appearance="outlined" class="details-card">
+    <mat-card-header>
+      <mat-card-title>Bootstrap stack</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @for (group of stack(); track group.label) {
+        <div class="stack-group">
+          <p class="stack-group__label">{{ group.label }}</p>
+          <mat-chip-set>
+            @for (item of group.items; track item) {
+              <mat-chip>{{ item }}</mat-chip>
+            }
+          </mat-chip-set>
+        </div>
+
+        @if (!$last) {
+          <mat-divider></mat-divider>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="details-card">
+    <mat-card-header>
+      <mat-card-title>Current outcome</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ul>
+        @for (item of checklist(); track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    </mat-card-content>
+  </mat-card>
+</section>

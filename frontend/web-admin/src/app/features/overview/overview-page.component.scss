@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.hero,
+.feature-card,
+.details-card {
+  backdrop-filter: blur(14px);
+  background: var(--bp-surface);
+  border-color: var(--bp-border);
+  box-shadow: var(--bp-shadow);
+}
+
+.hero {
+  display: grid;
+  gap: 1.25rem;
+  padding: 2rem;
+  border: 1px solid var(--bp-border);
+  border-radius: 1.5rem;
+}
+
+.hero__eyebrow,
+.stack-group__label {
+  margin: 0;
+  color: var(--bp-text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0.5rem 0 0.75rem;
+  max-width: 14ch;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+}
+
+.hero p {
+  margin: 0;
+  max-width: 68ch;
+  line-height: 1.7;
+}
+
+.cards-grid,
+.details-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.cards-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.details-grid {
+  grid-template-columns: 1.2fr 0.8fr;
+}
+
+.feature-card mat-card-content p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--bp-text-primary);
+}
+
+.stack-group {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1rem 0;
+}
+
+.details-card ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 960px) {
+  .cards-grid,
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 1.5rem;
+  }
+}

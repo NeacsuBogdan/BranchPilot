@@ -1,0 +1,14 @@
+@BranchPilot_Api_HostAddress = https://localhost:7247
+
+GET {{BranchPilot_Api_HostAddress}}/api/platform/info
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/health/live
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/health/ready
+Accept: application/json
