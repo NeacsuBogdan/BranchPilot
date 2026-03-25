@@ -1,0 +1,157 @@
+:host {
+  display: block;
+}
+
+.dashboard-hero,
+.dashboard-card,
+.dashboard-empty {
+  border: 1px solid var(--bp-border);
+  border-radius: 1.5rem;
+  background: var(--bp-surface);
+  box-shadow: var(--bp-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.dashboard-hero {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: start;
+  padding: 1.6rem;
+}
+
+.dashboard-hero__eyebrow {
+  margin: 0 0 0.45rem;
+  color: var(--bp-text-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.08;
+}
+
+.dashboard-hero p {
+  margin: 0.7rem 0 0;
+  max-width: 72ch;
+  line-height: 1.7;
+}
+
+.dashboard-hero__metrics {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 220px;
+}
+
+.dashboard-hero__metrics article {
+  display: grid;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(15, 39, 52, 0.95);
+  color: #f7fffb;
+}
+
+.dashboard-hero__metrics strong {
+  font-size: 1.35rem;
+}
+
+.dashboard-hero__metrics span {
+  color: rgba(247, 255, 251, 0.72);
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+}
+
+.dashboard-card {
+  overflow: hidden;
+}
+
+.table-shell {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.95rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(19, 42, 56, 0.08);
+}
+
+th {
+  color: var(--bp-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dashboard-card__empty {
+  margin: 0;
+  color: var(--bp-text-muted);
+}
+
+.location-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.location-form__status {
+  margin: 0;
+}
+
+.location-form__status--error {
+  color: #ab1d1d;
+}
+
+.location-form__status--success {
+  color: #1d7c3a;
+}
+
+.dashboard-card__meta {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dashboard-card__meta p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.dashboard-empty {
+  padding: 2rem;
+}
+
+@media (max-width: 1100px) {
+  .dashboard-hero {
+    flex-direction: column;
+  }
+
+  .dashboard-hero__metrics {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-hero__metrics {
+    grid-template-columns: 1fr;
+  }
+}

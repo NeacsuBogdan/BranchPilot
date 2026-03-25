@@ -16,9 +16,11 @@ builder.Host.UseSerilog((context, services, configuration) =>
 builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
-    .AddApiServices();
+    .AddApiServices(builder.Configuration);
 
 var app = builder.Build();
+
+await app.Services.InitialiseInfrastructureAsync();
 
 app.UseExceptionHandler();
 app.UseSerilogRequestLogging();
@@ -34,6 +36,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("WebAdmin");
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapApiEndpoints();

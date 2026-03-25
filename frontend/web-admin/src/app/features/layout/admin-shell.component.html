@@ -1,0 +1,49 @@
+<div class="shell">
+  <aside class="shell__sidebar">
+    <a class="shell__brand" routerLink="/dashboard">
+      <span class="shell__brand-mark">BP</span>
+      <span>
+        <strong>BranchPilot</strong>
+        <small>Business operations control</small>
+      </span>
+    </a>
+
+    @if (session(); as session) {
+      <mat-card appearance="outlined" class="sidebar-card">
+        <p class="sidebar-card__label">Tenant</p>
+        <h2>{{ session.tenant.name }}</h2>
+        <p>{{ session.user.fullName }}</p>
+        <p>{{ session.user.email }}</p>
+      </mat-card>
+    }
+
+    <nav class="shell__nav">
+      <a
+        class="shell__nav-link"
+        routerLink="/dashboard"
+        routerLinkActive="shell__nav-link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Workspace dashboard
+      </a>
+    </nav>
+
+    <div class="shell__sidebar-footer">
+      <mat-divider></mat-divider>
+      <button mat-stroked-button type="button" (click)="signOut()">Sign out</button>
+    </div>
+  </aside>
+
+  <section class="shell__content">
+    <mat-toolbar class="shell__toolbar">
+      <div>
+        <strong>Operations workspace</strong>
+        <p>{{ workspaceSubtitle() }}</p>
+      </div>
+    </mat-toolbar>
+
+    <main class="shell__main">
+      <router-outlet />
+    </main>
+  </section>
+</div>

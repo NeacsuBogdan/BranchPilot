@@ -1,0 +1,122 @@
+@if (session(); as session) {
+  <section class="dashboard-hero">
+    <div>
+      <p class="dashboard-hero__eyebrow">Tenant workspace</p>
+      <h1>{{ session.tenant.name }}</h1>
+      <p>
+        {{ session.user.fullName }} is signed in. Stage 1 currently supports secure organization
+        setup, demo access, and tenant-scoped location management.
+      </p>
+    </div>
+
+    <div class="dashboard-hero__metrics">
+      <article>
+        <strong>{{ locations().length }}</strong>
+        <span>Locations</span>
+      </article>
+      <article>
+        <strong>{{ session.tenant.slug }}</strong>
+        <span>Tenant slug</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <mat-card appearance="outlined" class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Location directory</mat-card-title>
+        <mat-card-subtitle>Tenant-scoped locations available to the signed-in workspace.</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (locations().length > 0) {
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Time zone</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (location of locations(); track location.id) {
+                  <tr>
+                    <td>{{ location.name }}</td>
+                    <td>{{ location.code }}</td>
+                    <td>{{ location.timeZone }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="dashboard-card__empty">No locations are configured for this tenant yet.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined" class="dashboard-card">
+      @if (isSaving()) {
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+
+      <mat-card-header>
+        <mat-card-title>Add a location</mat-card-title>
+        <mat-card-subtitle>Stage 1 operational seed for multi-location support.</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="locationForm" class="location-form" (ngSubmit)="createLocation()">
+          <mat-form-field appearance="outline">
+            <mat-label>Location name</mat-label>
+            <input matInput formControlName="name" />
+            @if (locationForm.controls.name.hasError('required')) {
+              <mat-error>Location name is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Location code</mat-label>
+            <input matInput formControlName="code" />
+            @if (locationForm.controls.code.hasError('required')) {
+              <mat-error>Location code is required.</mat-error>
+            } @else if (locationForm.controls.code.hasError('pattern')) {
+              <mat-error>Use letters, numbers, or dashes only.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Time zone</mat-label>
+            <input matInput formControlName="timeZone" />
+            @if (locationForm.controls.timeZone.hasError('required')) {
+              <mat-error>Time zone is required.</mat-error>
+            }
+          </mat-form-field>
+
+          @if (errorMessage()) {
+            <p class="location-form__status location-form__status--error">{{ errorMessage() }}</p>
+          }
+
+          @if (successMessage()) {
+            <p class="location-form__status location-form__status--success">{{ successMessage() }}</p>
+          }
+
+          <button mat-flat-button type="submit" [disabled]="isSaving()">Create location</button>
+        </form>
+      </mat-card-content>
+
+      <mat-divider></mat-divider>
+
+      <mat-card-content class="dashboard-card__meta">
+        <p><strong>Signed in as</strong> {{ session.user.email }}</p>
+        <p><strong>Tenant id</strong> {{ session.tenant.id }}</p>
+      </mat-card-content>
+    </mat-card>
+  </section>
+} @else {
+  <section class="dashboard-empty">
+    <h1>Loading workspace</h1>
+    <p>The authenticated tenant context is still being resolved.</p>
+  </section>
+}

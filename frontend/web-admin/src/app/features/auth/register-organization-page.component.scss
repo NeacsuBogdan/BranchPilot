@@ -1,0 +1,85 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.register-layout {
+  display: grid;
+  max-width: 1240px;
+  margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.register-intro,
+.register-card {
+  border: 1px solid var(--bp-border);
+  border-radius: 1.5rem;
+  background: var(--bp-surface);
+  box-shadow: var(--bp-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.register-intro {
+  display: grid;
+  gap: 0.9rem;
+  padding: 2rem;
+}
+
+.register-intro__eyebrow {
+  margin: 0;
+  color: var(--bp-text-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.register-intro h1 {
+  margin: 0;
+  max-width: 18ch;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.08;
+}
+
+.register-intro p {
+  margin: 0;
+  max-width: 78ch;
+  line-height: 1.7;
+}
+
+.register-card {
+  overflow: hidden;
+}
+
+.register-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.register-form__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.register-form__error {
+  margin: 0;
+  color: #ab1d1d;
+}
+
+.register-form__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  :host {
+    padding: 1rem;
+  }
+
+  .register-form__grid {
+    grid-template-columns: 1fr;
+  }
+}

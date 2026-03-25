@@ -1,0 +1,144 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.shell {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 320px minmax(0, 1fr);
+}
+
+.shell__sidebar {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, rgba(16, 40, 54, 0.98), rgba(10, 27, 37, 0.98));
+  color: #f4fbff;
+}
+
+.shell__brand {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.shell__brand strong,
+.shell__toolbar strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.shell__brand small,
+.shell__toolbar p {
+  color: rgba(244, 251, 255, 0.7);
+}
+
+.shell__brand-mark {
+  display: inline-flex;
+  width: 3rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #a9f5d6, #f3ffbe);
+  color: #102836;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.sidebar-card {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: inherit;
+}
+
+.sidebar-card h2,
+.sidebar-card p {
+  margin: 0;
+}
+
+.sidebar-card__label {
+  margin-bottom: 0.45rem;
+  color: rgba(244, 251, 255, 0.66);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.shell__nav {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.shell__nav-link {
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  color: rgba(244, 251, 255, 0.86);
+  text-decoration: none;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.shell__nav-link:hover,
+.shell__nav-link--active {
+  border-color: rgba(169, 245, 214, 0.48);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(2px);
+}
+
+.shell__sidebar-footer {
+  display: grid;
+  gap: 1rem;
+  align-self: end;
+}
+
+.shell__sidebar-footer .mat-mdc-outlined-button {
+  justify-self: start;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #f4fbff;
+}
+
+.shell__content {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.shell__toolbar {
+  min-height: 88px;
+  padding: 1rem 1.75rem;
+  background: rgba(15, 39, 52, 0.9);
+  color: #f4fbff;
+  backdrop-filter: blur(12px);
+}
+
+.shell__toolbar p {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+}
+
+.shell__main {
+  padding: 1.75rem;
+}
+
+@media (max-width: 960px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .shell__sidebar {
+    gap: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .shell__main {
+    padding: 1rem;
+  }
+}

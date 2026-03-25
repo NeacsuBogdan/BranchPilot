@@ -1,7 +1,58 @@
 @BranchPilot_Api_HostAddress = https://localhost:7247
+@AccessToken = replace-me
 
 GET {{BranchPilot_Api_HostAddress}}/api/platform/info
 Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "owner@branchpilot.demo",
+  "password": "BranchPilot!123"
+}
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/auth/register-organization
+Content-Type: application/json
+
+{
+  "tenantName": "Harbor & Pine Operations",
+  "primaryLocationName": "Bucharest Flagship",
+  "primaryLocationCode": "BUC-FLAG",
+  "primaryLocationTimeZone": "Europe/Bucharest",
+  "firstName": "Elena",
+  "lastName": "Ionescu",
+  "email": "elena@harborpine.test",
+  "password": "BranchPilot!123"
+}
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/locations
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/locations
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Timisoara West",
+  "code": "TM-WEST",
+  "timeZone": "Europe/Bucharest"
+}
 
 ###
 
