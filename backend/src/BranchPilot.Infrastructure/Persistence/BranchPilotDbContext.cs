@@ -23,6 +23,16 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
 
     public DbSet<AppUser> Users => Set<AppUser>();
 
+    public DbSet<Category> Categories => Set<Category>();
+
+    public DbSet<TaxProfile> TaxProfiles => Set<TaxProfile>();
+
+    public DbSet<CatalogItem> CatalogItems => Set<CatalogItem>();
+
+    public DbSet<LocationPrice> LocationPrices => Set<LocationPrice>();
+
+    public DbSet<Promotion> Promotions => Set<Promotion>();
+
     public DbSet<Membership> Memberships => Set<Membership>();
 
     public DbSet<MembershipLocation> MembershipLocations => Set<MembershipLocation>();
@@ -42,6 +52,31 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
             .HasQueryFilter(user =>
                 _currentUserContext.TenantId.HasValue &&
                 user.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<Category>()
+            .HasQueryFilter(category =>
+                _currentUserContext.TenantId.HasValue &&
+                category.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<TaxProfile>()
+            .HasQueryFilter(taxProfile =>
+                _currentUserContext.TenantId.HasValue &&
+                taxProfile.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<CatalogItem>()
+            .HasQueryFilter(item =>
+                _currentUserContext.TenantId.HasValue &&
+                item.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<LocationPrice>()
+            .HasQueryFilter(locationPrice =>
+                _currentUserContext.TenantId.HasValue &&
+                locationPrice.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<Promotion>()
+            .HasQueryFilter(promotion =>
+                _currentUserContext.TenantId.HasValue &&
+                promotion.TenantId == _currentUserContext.TenantId.Value);
 
         modelBuilder.Entity<Membership>()
             .HasQueryFilter(membership =>

@@ -12,6 +12,8 @@ public static class RolePermissionCatalog
                 PermissionCodes.DashboardView,
                 PermissionCodes.LocationsView,
                 PermissionCodes.LocationsManage,
+                PermissionCodes.CatalogView,
+                PermissionCodes.CatalogManage,
                 PermissionCodes.UsersView,
                 PermissionCodes.UsersManage,
             ],
@@ -20,6 +22,8 @@ public static class RolePermissionCatalog
                 PermissionCodes.DashboardView,
                 PermissionCodes.LocationsView,
                 PermissionCodes.LocationsManage,
+                PermissionCodes.CatalogView,
+                PermissionCodes.CatalogManage,
                 PermissionCodes.UsersView,
                 PermissionCodes.UsersManage,
             ],
@@ -27,12 +31,15 @@ public static class RolePermissionCatalog
             [
                 PermissionCodes.DashboardView,
                 PermissionCodes.LocationsView,
+                PermissionCodes.CatalogView,
+                PermissionCodes.CatalogManage,
                 PermissionCodes.UsersView,
             ],
             [MembershipRole.Staff] =
             [
                 PermissionCodes.DashboardView,
                 PermissionCodes.LocationsView,
+                PermissionCodes.CatalogView,
             ],
         };
 

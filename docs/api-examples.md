@@ -1,6 +1,6 @@
 # API Examples
 
-Stage 2 exposes authentication, tenant setup, tenant-scoped location management, and membership-based user administration.
+Stage 3 exposes authentication, tenant setup, membership-based user administration, and tenant-scoped catalog management with pricing and promotions.
 
 ## Login with seeded demo account
 
@@ -38,6 +38,8 @@ Example response:
         "dashboard.view",
         "locations.view",
         "locations.manage",
+        "catalog.view",
+        "catalog.manage",
         "users.view",
         "users.manage"
       ],
@@ -122,13 +124,15 @@ Example response:
     "code": "Owner",
     "name": "Owner",
     "description": "Full tenant administration including protected access changes.",
-    "permissions": [
-      "dashboard.view",
-      "locations.view",
-      "locations.manage",
-      "users.view",
-      "users.manage"
-    ]
+      "permissions": [
+        "dashboard.view",
+        "locations.view",
+        "locations.manage",
+        "catalog.view",
+        "catalog.manage",
+        "users.view",
+        "users.manage"
+      ]
   },
   {
     "code": "Staff",
@@ -200,6 +204,109 @@ Accept: application/json
   "name": "Timisoara West",
   "code": "TM-WEST",
   "timeZone": "Europe/Bucharest"
+}
+```
+
+## Catalog options
+
+```http
+GET /api/catalog/options
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## List catalog items
+
+```http
+GET /api/catalog/items?page=1&pageSize=10&search=consult&itemType=Service
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+Example response:
+
+```json
+{
+  "items": [
+    {
+      "id": "0d3fca24-1841-457b-b7ab-b0db37808a94",
+      "name": "Premium Consultation",
+      "code": "CONSULT-PREMIUM",
+      "itemType": "Service",
+      "isActive": true,
+      "durationInMinutes": 45,
+      "category": {
+        "id": "7d7fca24-1841-457b-b7ab-b0db37808a94",
+        "name": "Services",
+        "description": "Consultation and advisory services."
+      },
+      "taxProfile": {
+        "id": "8d7fca24-1841-457b-b7ab-b0db37808a94",
+        "name": "Standard VAT 19%",
+        "rate": 19
+      },
+      "priceRange": {
+        "minimumAmount": 220.0,
+        "maximumAmount": 260.0,
+        "currencyCode": "EUR",
+        "locationCount": 2
+      },
+      "activePromotionCount": 1
+    }
+  ],
+  "page": 1,
+  "pageSize": 10,
+  "totalCount": 1
+}
+```
+
+## Create category
+
+```http
+POST /api/catalog/categories
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Membership Plans",
+  "description": "Recurring service plans offered by locations."
+}
+```
+
+## Create catalog item
+
+```http
+POST /api/catalog/items
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Executive Advisory Session",
+  "code": "EXEC-ADVISORY",
+  "itemType": "Service",
+  "categoryId": "7d7fca24-1841-457b-b7ab-b0db37808a94",
+  "taxProfileId": "8d7fca24-1841-457b-b7ab-b0db37808a94",
+  "description": "Extended advisory session for enterprise customers.",
+  "durationInMinutes": 60,
+  "isActive": true,
+  "locationPrices": [
+    {
+      "locationId": "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
+      "priceAmount": 320,
+      "currencyCode": "EUR"
+    }
+  ],
+  "promotions": [
+    {
+      "name": "Launch Week",
+      "locationId": "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
+      "discountPercentage": 12.5,
+      "startsAtUtc": "2026-03-26T08:00:00Z",
+      "endsAtUtc": "2026-04-02T20:00:00Z"
+    }
+  ]
 }
 ```
 

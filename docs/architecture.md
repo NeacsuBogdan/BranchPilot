@@ -1,6 +1,6 @@
 # Architecture
 
-BranchPilot is being built as a modular monolith for the MVP. Stage 2 extends the foundation with memberships, permission-based authorization, and tenant-safe team management without prematurely introducing distributed complexity.
+BranchPilot is being built as a modular monolith for the MVP. Stage 3 extends the foundation with tenant-safe catalog management, location-specific pricing, and promotion workflows without prematurely introducing distributed complexity.
 
 ## Backend
 
@@ -20,14 +20,16 @@ Current API bootstrap includes:
 - Serilog console logging
 - clean project references aligned to the intended architecture
 
-Stage 2 application flow:
+Stage 3 application flow:
 
 - `AuthController` handles tenant registration, login, refresh, logout, and current-session lookup
 - `LocationService` enforces tenant-scoped location access and creation
 - `UserManagementService` owns paged user listing, user creation, membership updates, and last-owner protection
+- `CatalogController` exposes catalog reference data, paged catalog items, and create or update commands behind explicit catalog permissions
+- `CatalogService` applies tenant boundaries, validates category and tax profile references, enforces pricing consistency, and prevents overlapping promotions per item and location
 - `PermissionAuthorizationHandler` translates membership roles into explicit permission checks at the API boundary
-- `BranchPilotDbContext` applies query filters to tenant-owned entities such as `Location`, `AppUser`, `Membership`, `MembershipLocation`, and `RefreshToken`
-- `DemoDataSeeder` creates a realistic demo tenant with two locations, owner/admin users, memberships, and location assignments for local development and portfolio demos
+- `BranchPilotDbContext` applies query filters to tenant-owned entities such as `Location`, `AppUser`, `Membership`, `MembershipLocation`, `RefreshToken`, `Category`, `TaxProfile`, `CatalogItem`, `LocationPrice`, and `Promotion`
+- `DemoDataSeeder` creates a realistic demo tenant with two locations, owner/admin users, memberships, location assignments, and seeded catalog records for local development and portfolio demos
 
 ## Frontend
 
@@ -39,7 +41,7 @@ Stage 2 application flow:
 - ESLint + Prettier
 - Playwright
 
-Stage 2 frontend responsibilities:
+Stage 3 frontend responsibilities:
 
 - public login and organization registration routes
 - signal-driven auth state persisted to local storage
@@ -48,6 +50,7 @@ Stage 2 frontend responsibilities:
 - tenant location list and location creation form
 - permission-aware navigation and route guards
 - team management page with search, pagination, and access dialogs
+- catalog workspace with reference-data forms, item filters, pagination, and create or edit dialogs for pricing and promotions
 
 ## Local infrastructure
 

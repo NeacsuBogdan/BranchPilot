@@ -93,6 +93,172 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     }
 }
 
+internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
+{
+    public void Configure(EntityTypeBuilder<Category> builder)
+    {
+        builder.ToTable("Categories");
+
+        builder.HasKey(category => category.Id);
+
+        builder.Property(category => category.Name)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        builder.Property(category => category.Description)
+            .HasMaxLength(400)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(category => category.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(category => new { category.TenantId, category.Name })
+            .IsUnique();
+    }
+}
+
+internal sealed class TaxProfileConfiguration : IEntityTypeConfiguration<TaxProfile>
+{
+    public void Configure(EntityTypeBuilder<TaxProfile> builder)
+    {
+        builder.ToTable("TaxProfiles");
+
+        builder.HasKey(taxProfile => taxProfile.Id);
+
+        builder.Property(taxProfile => taxProfile.Name)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        builder.Property(taxProfile => taxProfile.Rate)
+            .HasPrecision(5, 2);
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(taxProfile => taxProfile.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(taxProfile => new { taxProfile.TenantId, taxProfile.Name })
+            .IsUnique();
+    }
+}
+
+internal sealed class CatalogItemConfiguration : IEntityTypeConfiguration<CatalogItem>
+{
+    public void Configure(EntityTypeBuilder<CatalogItem> builder)
+    {
+        builder.ToTable("CatalogItems");
+
+        builder.HasKey(item => item.Id);
+
+        builder.Property(item => item.Name)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        builder.Property(item => item.Code)
+            .HasMaxLength(32)
+            .IsRequired();
+
+        builder.Property(item => item.ItemType)
+            .HasConversion<string>()
+            .HasMaxLength(24)
+            .IsRequired();
+
+        builder.Property(item => item.Description)
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(item => item.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(item => item.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<TaxProfile>()
+            .WithMany()
+            .HasForeignKey(item => item.TaxProfileId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(item => new { item.TenantId, item.Code })
+            .IsUnique();
+
+        builder.HasIndex(item => new { item.TenantId, item.CategoryId, item.IsActive });
+    }
+}
+
+internal sealed class LocationPriceConfiguration : IEntityTypeConfiguration<LocationPrice>
+{
+    public void Configure(EntityTypeBuilder<LocationPrice> builder)
+    {
+        builder.ToTable("LocationPrices");
+
+        builder.HasKey(locationPrice => new { locationPrice.CatalogItemId, locationPrice.LocationId });
+
+        builder.Property(locationPrice => locationPrice.PriceAmount)
+            .HasPrecision(18, 2);
+
+        builder.Property(locationPrice => locationPrice.CurrencyCode)
+            .HasMaxLength(3)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(locationPrice => locationPrice.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<CatalogItem>()
+            .WithMany()
+            .HasForeignKey(locationPrice => locationPrice.CatalogItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Location>()
+            .WithMany()
+            .HasForeignKey(locationPrice => locationPrice.LocationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(locationPrice => new { locationPrice.TenantId, locationPrice.LocationId });
+    }
+}
+
+internal sealed class PromotionConfiguration : IEntityTypeConfiguration<Promotion>
+{
+    public void Configure(EntityTypeBuilder<Promotion> builder)
+    {
+        builder.ToTable("Promotions");
+
+        builder.HasKey(promotion => promotion.Id);
+
+        builder.Property(promotion => promotion.Name)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        builder.Property(promotion => promotion.DiscountPercentage)
+            .HasPrecision(5, 2);
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(promotion => promotion.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<CatalogItem>()
+            .WithMany()
+            .HasForeignKey(promotion => promotion.CatalogItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Location>()
+            .WithMany()
+            .HasForeignKey(promotion => promotion.LocationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(promotion => new { promotion.TenantId, promotion.CatalogItemId, promotion.LocationId, promotion.StartsAtUtc });
+    }
+}
+
 internal sealed class MembershipConfiguration : IEntityTypeConfiguration<Membership>
 {
     public void Configure(EntityTypeBuilder<Membership> builder)

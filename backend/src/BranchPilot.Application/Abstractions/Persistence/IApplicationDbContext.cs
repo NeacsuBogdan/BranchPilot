@@ -11,6 +11,16 @@ public interface IApplicationDbContext
 
     DbSet<AppUser> Users { get; }
 
+    DbSet<Category> Categories { get; }
+
+    DbSet<TaxProfile> TaxProfiles { get; }
+
+    DbSet<CatalogItem> CatalogItems { get; }
+
+    DbSet<LocationPrice> LocationPrices { get; }
+
+    DbSet<Promotion> Promotions { get; }
+
     DbSet<Membership> Memberships { get; }
 
     DbSet<MembershipLocation> MembershipLocations { get; }

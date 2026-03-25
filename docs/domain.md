@@ -24,7 +24,7 @@ The long-term product direction remains fixed around the following tenant-scoped
 - RefreshToken
 - JobRunHistory
 
-Implemented in Stage 2:
+Implemented in Stage 3:
 
 - `Tenant`
   - represents the company boundary for the workspace
@@ -40,6 +40,16 @@ Implemented in Stage 2:
   - stored per tenant and user to support session renewal and revocation
 - `Permission`
   - modeled as explicit application-level codes mapped from extendable roles
+- `Category`
+  - groups products and services within a tenant catalog
+- `TaxProfile`
+  - represents reusable tax treatment configured per tenant
+- `CatalogItem`
+  - tenant-scoped product or service with a durable code, optional category, and required tax profile
+- `LocationPrice`
+  - assigns a location-specific price to one catalog item inside the same tenant
+- `Promotion`
+  - applies a date-ranged percentage discount to one catalog item at one location
 
 Current business rules introduced in this stage:
 
@@ -52,3 +62,12 @@ Current business rules introduced in this stage:
 - assigned membership locations must belong to the same tenant as the membership
 - the last active owner in a tenant cannot be demoted or deactivated
 - backend authorization is performed against explicit permission policies instead of implicit UI assumptions
+- category names must be unique within a tenant
+- tax profile names must be unique within a tenant
+- catalog item codes must be unique within a tenant
+- service items require a duration while product items must not define one
+- all referenced category, tax profile, and location records must belong to the current tenant
+- each catalog item can define at most one price per location
+- all location prices for a single item must share the same currency
+- promotions can only target locations that already have a defined price for the item
+- promotion windows for the same item and location must not overlap

@@ -1,0 +1,269 @@
+<section class="catalog-hero">
+  <div>
+    <p class="catalog-hero__eyebrow">Stage 3</p>
+    <h1>Catalog, pricing, and promotions</h1>
+    <p>
+      Manage categories, tax profiles, and location-specific catalog items with explicit pricing
+      and date-ranged promotions.
+    </p>
+  </div>
+
+  <div class="catalog-hero__metrics">
+    <article>
+      <strong>{{ totalItems() }}</strong>
+      <span>Catalog items</span>
+    </article>
+    <article>
+      <strong>{{ totalCategories() }}</strong>
+      <span>Categories</span>
+    </article>
+    <article>
+      <strong>{{ totalTaxProfiles() }}</strong>
+      <span>Tax profiles</span>
+    </article>
+  </div>
+</section>
+
+<section class="catalog-grid">
+  <mat-card appearance="outlined" class="catalog-card">
+    @if (isReferenceSaving()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    <mat-card-header>
+      <mat-card-title>Categories</mat-card-title>
+      <mat-card-subtitle>Reference groups for products and services.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (canManageCatalog()) {
+        <form [formGroup]="categoryForm" class="catalog-inline-form" (ngSubmit)="createCategory()">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+
+          <button mat-flat-button type="submit">Add category</button>
+        </form>
+      }
+
+      @if (referenceErrorMessage()) {
+        <p class="catalog-card__error">{{ referenceErrorMessage() }}</p>
+      }
+
+      @if (categoriesPage(); as categoriesPage) {
+        @if (categoriesPage.items.length > 0) {
+          <div class="catalog-reference-list">
+            @for (category of categoriesPage.items; track category.id) {
+              <article>
+                <strong>{{ category.name }}</strong>
+                <span>{{ category.description || 'No description configured.' }}</span>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="catalog-card__empty">No categories are configured yet.</p>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card appearance="outlined" class="catalog-card">
+    @if (isReferenceSaving()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    <mat-card-header>
+      <mat-card-title>Tax profiles</mat-card-title>
+      <mat-card-subtitle>Tax settings reused by catalog items.</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (canManageCatalog()) {
+        <form [formGroup]="taxProfileForm" class="catalog-inline-form" (ngSubmit)="createTaxProfile()">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Rate %</mat-label>
+            <input matInput type="number" formControlName="rate" />
+          </mat-form-field>
+
+          <button mat-flat-button type="submit">Add tax profile</button>
+        </form>
+      }
+
+      @if (taxProfilesPage(); as taxProfilesPage) {
+        @if (taxProfilesPage.items.length > 0) {
+          <div class="catalog-reference-list">
+            @for (taxProfile of taxProfilesPage.items; track taxProfile.id) {
+              <article>
+                <strong>{{ taxProfile.name }}</strong>
+                <span>{{ taxProfile.rate }}%</span>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="catalog-card__empty">No tax profiles are configured yet.</p>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</section>
+
+<mat-card appearance="outlined" class="catalog-card catalog-card--table">
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card-header>
+    <div class="catalog-card__header">
+      <div>
+        <mat-card-title>Catalog items</mat-card-title>
+        <mat-card-subtitle>
+          Search, filter, and manage tenant-specific products and services with pricing coverage.
+        </mat-card-subtitle>
+      </div>
+
+      @if (canManageCatalog()) {
+        <button mat-flat-button type="button" [disabled]="!canOpenItemDialog()" (click)="openCreateDialog()">
+          <mat-icon>inventory_2</mat-icon>
+          Add item
+        </button>
+      }
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="filtersForm" class="catalog-filters" (ngSubmit)="applyFilters()">
+      <mat-form-field appearance="outline">
+        <mat-label>Search</mat-label>
+        <input matInput formControlName="search" placeholder="Search by name or code" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Item type</mat-label>
+        <mat-select formControlName="itemType">
+          <mat-option value="">All types</mat-option>
+          @for (itemType of options()?.itemTypes ?? []; track itemType.code) {
+            <mat-option [value]="itemType.code">{{ itemType.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="categoryId">
+          <mat-option value="">All categories</mat-option>
+          @for (category of options()?.categories ?? []; track category.id) {
+            <mat-option [value]="category.id">{{ category.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="inactive">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="submit">Apply filters</button>
+    </form>
+
+    @if (errorMessage()) {
+      <p class="catalog-card__error">{{ errorMessage() }}</p>
+    }
+
+    @if (!canOpenItemDialog() && canManageCatalog()) {
+      <p class="catalog-card__empty">
+        Create at least one tax profile before adding catalog items.
+      </p>
+    }
+
+    @if (itemsPage(); as itemsPage) {
+      @if (itemsPage.items.length > 0) {
+        <div class="catalog-table-shell">
+          <table class="catalog-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Pricing</th>
+                <th>Promotions</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of itemsPage.items; track item.id) {
+                <tr>
+                  <td>
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.code }}</span>
+                  </td>
+                  <td>
+                    <strong>{{ item.itemType }}</strong>
+                    <span>
+                      {{
+                        item.durationInMinutes ? item.durationInMinutes + ' min' : 'No duration required'
+                      }}
+                    </span>
+                  </td>
+                  <td>
+                    <strong>{{ item.category?.name ?? 'Uncategorized' }}</strong>
+                    <span>{{ item.taxProfile.name }} - {{ item.taxProfile.rate }}%</span>
+                  </td>
+                  <td>
+                    <strong>
+                      {{ item.priceRange.minimumAmount | number: '1.2-2' }} -
+                      {{ item.priceRange.maximumAmount | number: '1.2-2' }}
+                      {{ item.priceRange.currencyCode }}
+                    </strong>
+                    <span>{{ item.priceRange.locationCount }} locations</span>
+                  </td>
+                  <td>
+                    <strong>{{ item.activePromotionCount }}</strong>
+                    <span>Active windows</span>
+                  </td>
+                  <td>
+                    <span class="catalog-status" [class.catalog-status--inactive]="!item.isActive">
+                      {{ item.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (canManageCatalog()) {
+                      <button mat-button type="button" (click)="openEditDialog(item)">Edit item</button>
+                    } @else {
+                      <span class="catalog-table__muted">Read only</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="catalog-card__empty">No catalog items matched the current filter.</p>
+      }
+
+      <mat-paginator
+        [length]="itemsPage.totalCount"
+        [pageIndex]="itemsPage.page - 1"
+        [pageSize]="itemsPage.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="changePage($event)"
+      />
+    }
+  </mat-card-content>
+</mat-card>

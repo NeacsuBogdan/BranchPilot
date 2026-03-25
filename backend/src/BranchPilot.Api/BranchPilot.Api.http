@@ -99,6 +99,73 @@ Content-Type: application/json
 
 ###
 
+GET {{BranchPilot_Api_HostAddress}}/api/catalog/options
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/catalog/items?page=1&pageSize=10&search=consult&itemType=Service
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/catalog/categories
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Membership Plans",
+  "description": "Recurring service plans offered by locations."
+}
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/catalog/tax-profiles
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Standard VAT 21%",
+  "rate": 21
+}
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/catalog/items
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "name": "Executive Advisory Session",
+  "code": "EXEC-ADVISORY",
+  "itemType": "Service",
+  "categoryId": "11111111-1111-1111-1111-111111111111",
+  "taxProfileId": "22222222-2222-2222-2222-222222222222",
+  "description": "Extended advisory session for enterprise customers.",
+  "durationInMinutes": 60,
+  "isActive": true,
+  "locationPrices": [
+    {
+      "locationId": "33333333-3333-3333-3333-333333333333",
+      "priceAmount": 320,
+      "currencyCode": "EUR"
+    }
+  ],
+  "promotions": [
+    {
+      "name": "Launch Week",
+      "locationId": "33333333-3333-3333-3333-333333333333",
+      "discountPercentage": 12.5,
+      "startsAtUtc": "2026-03-26T08:00:00Z",
+      "endsAtUtc": "2026-04-02T20:00:00Z"
+    }
+  ]
+}
+
+###
+
 GET {{BranchPilot_Api_HostAddress}}/health/live
 Accept: application/json
 

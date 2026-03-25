@@ -36,6 +36,16 @@
           Team management
         </a>
       }
+
+      @if (canViewCatalog()) {
+        <a
+          class="shell__nav-link"
+          routerLink="/catalog"
+          routerLinkActive="shell__nav-link--active"
+        >
+          Catalog and pricing
+        </a>
+      }
     </nav>
 
     <div class="shell__sidebar-footer">

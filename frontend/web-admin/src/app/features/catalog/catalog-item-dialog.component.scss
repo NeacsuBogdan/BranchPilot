@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+.catalog-dialog {
+  min-width: min(960px, calc(100vw - 3rem));
+}
+
+.catalog-dialog__form {
+  display: grid;
+  gap: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.catalog-dialog__section {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(19, 42, 56, 0.08);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.catalog-dialog__section h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.catalog-dialog__section-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.catalog-dialog__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.catalog-dialog__grid--promotion {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.catalog-dialog__section .mat-mdc-form-field {
+  width: 100%;
+}
+
+.catalog-dialog__hint {
+  margin: 0;
+  color: var(--bp-text-muted);
+}
+
+.catalog-dialog__stack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.catalog-dialog__row,
+.catalog-dialog__promotion {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: rgba(15, 39, 52, 0.05);
+}
+
+.catalog-dialog__row {
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(120px, 0.7fr) auto;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .catalog-dialog {
+    min-width: calc(100vw - 2rem);
+  }
+
+  .catalog-dialog__grid,
+  .catalog-dialog__row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,8 +1,12 @@
+using BranchPilot.Application.Abstractions.Persistence;
 using BranchPilot.Infrastructure;
+using BranchPilot.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 
 namespace BranchPilot.IntegrationTests.Api;
@@ -28,6 +32,18 @@ public sealed class BranchPilotWebApplicationFactory : WebApplicationFactory<Pro
                         ["ConnectionStrings:Redis"] = "localhost:6379",
                         ["Infrastructure:SkipAutoInitialization"] = "true",
                     });
+            });
+        builder.ConfigureServices(
+            services =>
+            {
+                services.RemoveAll<DbContextOptions<BranchPilotDbContext>>();
+                services.RemoveAll<BranchPilotDbContext>();
+                services.RemoveAll<IApplicationDbContext>();
+
+                services.AddDbContext<BranchPilotDbContext>(
+                    options => options.UseNpgsql(_databaseContainer.GetConnectionString()));
+                services.AddScoped<IApplicationDbContext>(
+                    serviceProvider => serviceProvider.GetRequiredService<BranchPilotDbContext>());
             });
     }
 

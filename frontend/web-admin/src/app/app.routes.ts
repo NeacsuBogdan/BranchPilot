@@ -43,6 +43,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/team/team-page.component').then((m) => m.TeamPageComponent),
       },
+      {
+        path: 'catalog',
+        canActivate: [permissionGuard(PermissionCodes.catalogView)],
+        loadComponent: () =>
+          import('./features/catalog/catalog-page.component').then((m) => m.CatalogPageComponent),
+      },
     ],
   },
   {

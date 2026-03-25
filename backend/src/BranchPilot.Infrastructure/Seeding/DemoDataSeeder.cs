@@ -36,6 +36,7 @@ public sealed class DemoDataSeeder
         }
 
         await EnsureMembershipBackfillAsync(cancellationToken);
+        await EnsureCatalogSeedAsync(cancellationToken);
     }
 
     private async Task SeedFreshDemoTenantAsync(CancellationToken cancellationToken)
@@ -237,6 +238,189 @@ public sealed class DemoDataSeeder
         {
             MembershipRole.Owner or MembershipRole.Admin => locations.Select(location => location.Id).ToArray(),
             _ => locations.Take(1).Select(location => location.Id).ToArray(),
+        };
+    }
+
+    private async Task EnsureCatalogSeedAsync(CancellationToken cancellationToken)
+    {
+        var demoTenant = await _dbContext.Tenants
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .OrderBy(tenant => tenant.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (demoTenant is null)
+        {
+            return;
+        }
+
+        var catalogExists = await _dbContext.CatalogItems
+            .IgnoreQueryFilters()
+            .AnyAsync(item => item.TenantId == demoTenant.Id, cancellationToken);
+
+        if (catalogExists)
+        {
+            return;
+        }
+
+        var locations = await _dbContext.Locations
+            .IgnoreQueryFilters()
+            .Where(location => location.TenantId == demoTenant.Id)
+            .OrderBy(location => location.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        if (locations.Count == 0)
+        {
+            return;
+        }
+
+        var now = _dateTimeProvider.UtcNow;
+        var categories = new[]
+        {
+            new Category
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                Name = "Services",
+                Description = "Operational services sold across tenant locations.",
+                CreatedAtUtc = now,
+            },
+            new Category
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                Name = "Retail",
+                Description = "Physical items and add-ons sold alongside bookings and walk-in traffic.",
+                CreatedAtUtc = now,
+            },
+        };
+
+        var taxProfiles = new[]
+        {
+            new TaxProfile
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                Name = "Standard VAT 19%",
+                Rate = 19m,
+                CreatedAtUtc = now,
+            },
+            new TaxProfile
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                Name = "Reduced VAT 9%",
+                Rate = 9m,
+                CreatedAtUtc = now,
+            },
+        };
+
+        var catalogItems = new[]
+        {
+            new CatalogItem
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                CategoryId = categories[0].Id,
+                TaxProfileId = taxProfiles[1].Id,
+                Name = "Premium Consultation",
+                Code = "CONSULT-PREMIUM",
+                ItemType = CatalogItemType.Service,
+                Description = "45-minute consultation service used in the demo workspace.",
+                DurationInMinutes = 45,
+                IsActive = true,
+                CreatedAtUtc = now,
+            },
+            new CatalogItem
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                CategoryId = categories[0].Id,
+                TaxProfileId = taxProfiles[1].Id,
+                Name = "Express Follow-up",
+                Code = "FOLLOWUP-EXPRESS",
+                ItemType = CatalogItemType.Service,
+                Description = "Short operational follow-up service for repeat customers.",
+                DurationInMinutes = 20,
+                IsActive = true,
+                CreatedAtUtc = now,
+            },
+            new CatalogItem
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                CategoryId = categories[1].Id,
+                TaxProfileId = taxProfiles[0].Id,
+                Name = "Retail Care Kit",
+                Code = "RETAIL-CARE-KIT",
+                ItemType = CatalogItemType.Product,
+                Description = "Physical retail bundle sold at selected locations.",
+                IsActive = true,
+                CreatedAtUtc = now,
+            },
+        };
+
+        var locationPrices = catalogItems
+            .SelectMany(
+                item => locations.Select(
+                    location => new LocationPrice
+                    {
+                        CatalogItemId = item.Id,
+                        LocationId = location.Id,
+                        TenantId = demoTenant.Id,
+                        PriceAmount = ResolveSeedPrice(item.Code, location.Code),
+                        CurrencyCode = "EUR",
+                        UpdatedAtUtc = now,
+                    }))
+            .ToArray();
+
+        var promotions = new[]
+        {
+            new Promotion
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                CatalogItemId = catalogItems[0].Id,
+                LocationId = locations[0].Id,
+                Name = "Spring intro",
+                DiscountPercentage = 10m,
+                StartsAtUtc = now.AddDays(-5),
+                EndsAtUtc = now.AddDays(10),
+                CreatedAtUtc = now,
+            },
+            new Promotion
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                CatalogItemId = catalogItems[2].Id,
+                LocationId = locations[1 % locations.Count].Id,
+                Name = "Retail bundle boost",
+                DiscountPercentage = 8m,
+                StartsAtUtc = now.AddDays(2),
+                EndsAtUtc = now.AddDays(20),
+                CreatedAtUtc = now,
+            },
+        };
+
+        await _dbContext.Categories.AddRangeAsync(categories, cancellationToken);
+        await _dbContext.TaxProfiles.AddRangeAsync(taxProfiles, cancellationToken);
+        await _dbContext.CatalogItems.AddRangeAsync(catalogItems, cancellationToken);
+        await _dbContext.LocationPrices.AddRangeAsync(locationPrices, cancellationToken);
+        await _dbContext.Promotions.AddRangeAsync(promotions, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static decimal ResolveSeedPrice(string itemCode, string locationCode)
+    {
+        return (itemCode, locationCode) switch
+        {
+            ("CONSULT-PREMIUM", "BUC-CENTRAL") => 49m,
+            ("CONSULT-PREMIUM", _) => 45m,
+            ("FOLLOWUP-EXPRESS", "BUC-CENTRAL") => 28m,
+            ("FOLLOWUP-EXPRESS", _) => 25m,
+            ("RETAIL-CARE-KIT", "BUC-CENTRAL") => 34m,
+            ("RETAIL-CARE-KIT", _) => 31m,
+            _ => 20m,
         };
     }
 }
