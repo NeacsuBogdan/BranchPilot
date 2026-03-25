@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { permissionGuard } from './core/auth/permission.guard';
+import { PermissionCodes } from './core/auth/permission-codes';
 import { publicOnlyGuard } from './core/auth/public-only.guard';
 
 export const routes: Routes = [
@@ -34,6 +36,12 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard-page.component').then(
             (m) => m.DashboardPageComponent,
           ),
+      },
+      {
+        path: 'team',
+        canActivate: [permissionGuard(PermissionCodes.usersView)],
+        loadComponent: () =>
+          import('./features/team/team-page.component').then((m) => m.TeamPageComponent),
       },
     ],
   },

@@ -3,7 +3,9 @@ using BranchPilot.Application.Abstractions.Security;
 using BranchPilot.Application.Abstractions.Time;
 using BranchPilot.Application.Common;
 using BranchPilot.Application.Locations;
+using BranchPilot.Application.Security;
 using BranchPilot.Domain.Entities;
+using BranchPilot.Domain.Enums;
 using BranchPilot.Domain.Utilities;
 using Microsoft.EntityFrameworkCore;
 
@@ -92,6 +94,31 @@ public sealed class AuthService
         await _dbContext.Tenants.AddAsync(tenant, cancellationToken);
         await _dbContext.Locations.AddAsync(location, cancellationToken);
         await _dbContext.Users.AddAsync(user, cancellationToken);
+        await _dbContext.Memberships.AddAsync(
+            new Membership
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenant.Id,
+                UserId = user.Id,
+                Role = MembershipRole.Owner,
+                CreatedAtUtc = now,
+            },
+            cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var membership = await _dbContext.Memberships
+            .IgnoreQueryFilters()
+            .SingleAsync(existingMembership => existingMembership.UserId == user.Id, cancellationToken);
+
+        await _dbContext.MembershipLocations.AddAsync(
+            new MembershipLocation
+            {
+                TenantId = tenant.Id,
+                MembershipId = membership.Id,
+                LocationId = location.Id,
+                AssignedAtUtc = now,
+            },
+            cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         var tokenPair = _tokenService.CreateTokenPair(user, tenant, now);
@@ -256,10 +283,14 @@ public sealed class AuthService
         bool ignoreTenantFilters)
     {
         IQueryable<Location> locationsQuery = _dbContext.Locations.AsNoTracking();
+        IQueryable<Membership> membershipsQuery = _dbContext.Memberships.AsNoTracking();
+        IQueryable<MembershipLocation> membershipLocationsQuery = _dbContext.MembershipLocations.AsNoTracking();
 
         if (ignoreTenantFilters)
         {
             locationsQuery = locationsQuery.IgnoreQueryFilters();
+            membershipsQuery = membershipsQuery.IgnoreQueryFilters();
+            membershipLocationsQuery = membershipLocationsQuery.IgnoreQueryFilters();
         }
 
         var locations = await locationsQuery
@@ -268,6 +299,29 @@ public sealed class AuthService
             .Select(location => new LocationResponse(location.Id, location.Name, location.Code, location.TimeZone))
             .ToListAsync(cancellationToken);
 
+        var membership = await membershipsQuery
+            .SingleOrDefaultAsync(
+                existingMembership => existingMembership.TenantId == tenant.Id && existingMembership.UserId == user.Id,
+                cancellationToken);
+
+        if (membership is null)
+        {
+            throw new AppException(
+                403,
+                "Membership required",
+                "The signed-in user does not have an active membership for this tenant.");
+        }
+
+        var assignedLocationIds = await membershipLocationsQuery
+            .Where(assignment => assignment.MembershipId == membership.Id)
+            .Select(assignment => assignment.LocationId)
+            .ToListAsync(cancellationToken);
+
+        var assignedLocations = locations
+            .Where(location => assignedLocationIds.Contains(location.Id))
+            .OrderBy(location => location.Name)
+            .ToList();
+
         return new CurrentSessionResponse(
             new UserSummaryResponse(
                 user.Id,
@@ -275,6 +329,11 @@ public sealed class AuthService
                 user.LastName,
                 $"{user.FirstName} {user.LastName}".Trim(),
                 user.Email),
+            new MembershipSummaryResponse(
+                membership.Id,
+                membership.Role.ToString(),
+                RolePermissionCatalog.GetPermissions(membership.Role).ToArray(),
+                assignedLocations),
             new TenantSummaryResponse(tenant.Id, tenant.Name, tenant.Slug),
             locations);
     }

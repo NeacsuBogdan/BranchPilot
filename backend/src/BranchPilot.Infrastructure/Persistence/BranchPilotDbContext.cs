@@ -23,6 +23,10 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
 
     public DbSet<AppUser> Users => Set<AppUser>();
 
+    public DbSet<Membership> Memberships => Set<Membership>();
+
+    public DbSet<MembershipLocation> MembershipLocations => Set<MembershipLocation>();
+
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +42,16 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
             .HasQueryFilter(user =>
                 _currentUserContext.TenantId.HasValue &&
                 user.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<Membership>()
+            .HasQueryFilter(membership =>
+                _currentUserContext.TenantId.HasValue &&
+                membership.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<MembershipLocation>()
+            .HasQueryFilter(assignment =>
+                _currentUserContext.TenantId.HasValue &&
+                assignment.TenantId == _currentUserContext.TenantId.Value);
 
         modelBuilder.Entity<RefreshToken>()
             .HasQueryFilter(token =>

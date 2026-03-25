@@ -1,6 +1,6 @@
 # API Examples
 
-Stage 1 exposes authentication, tenant setup, and tenant-scoped location management.
+Stage 2 exposes authentication, tenant setup, tenant-scoped location management, and membership-based user administration.
 
 ## Login with seeded demo account
 
@@ -31,6 +31,31 @@ Example response:
       "fullName": "Nora West",
       "email": "owner@branchpilot.demo"
     },
+    "membership": {
+      "id": "5813f64a-f4a8-4e5d-bd2d-f9199b6df254",
+      "role": "Owner",
+      "permissions": [
+        "dashboard.view",
+        "locations.view",
+        "locations.manage",
+        "users.view",
+        "users.manage"
+      ],
+      "assignedLocations": [
+        {
+          "id": "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
+          "name": "Bucharest Central",
+          "code": "BUC-CENTRAL",
+          "timeZone": "Europe/Bucharest"
+        },
+        {
+          "id": "ba7fe3f1-97ca-4cb3-9b9d-dabf46bf6910",
+          "name": "Cluj North",
+          "code": "CLJ-NORTH",
+          "timeZone": "Europe/Bucharest"
+        }
+      ]
+    },
     "tenant": {
       "id": "451bf932-5158-4b18-84d4-0e9d4884153a",
       "name": "Northwind Operations Group",
@@ -41,6 +66,12 @@ Example response:
         "id": "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
         "name": "Bucharest Central",
         "code": "BUC-CENTRAL",
+        "timeZone": "Europe/Bucharest"
+      },
+      {
+        "id": "ba7fe3f1-97ca-4cb3-9b9d-dabf46bf6910",
+        "name": "Cluj North",
+        "code": "CLJ-NORTH",
         "timeZone": "Europe/Bucharest"
       }
     ]
@@ -73,6 +104,88 @@ Accept: application/json
 GET /api/auth/me
 Authorization: Bearer <access-token>
 Accept: application/json
+```
+
+## List available role options
+
+```http
+GET /api/users/roles
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+Example response:
+
+```json
+[
+  {
+    "code": "Owner",
+    "name": "Owner",
+    "description": "Full tenant administration including protected access changes.",
+    "permissions": [
+      "dashboard.view",
+      "locations.view",
+      "locations.manage",
+      "users.view",
+      "users.manage"
+    ]
+  },
+  {
+    "code": "Staff",
+    "name": "Staff",
+    "description": "Workspace access for day-to-day operations without administrative privileges.",
+    "permissions": [
+      "dashboard.view",
+      "locations.view"
+    ]
+  }
+]
+```
+
+## List tenant users
+
+```http
+GET /api/users?page=1&pageSize=10&search=owner
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## Create a tenant user
+
+```http
+POST /api/users
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "Bianca",
+  "lastName": "Matei",
+  "email": "bianca.matei@northwind.test",
+  "password": "BranchPilot!123",
+  "role": "Manager",
+  "locationIds": [
+    "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab"
+  ]
+}
+```
+
+## Update role and location assignments
+
+```http
+PUT /api/users/2db0f4a0-0d36-4a93-8d2d-6e484638c686/membership
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "role": "Admin",
+  "isActive": true,
+  "locationIds": [
+    "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
+    "ba7fe3f1-97ca-4cb3-9b9d-dabf46bf6910"
+  ]
+}
 ```
 
 ## Create location

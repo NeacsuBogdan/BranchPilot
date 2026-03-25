@@ -1,0 +1,93 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit team access' : 'Add team member' }}</h2>
+
+<mat-dialog-content>
+  @if (isEditMode && data.member) {
+    <div class="dialog-summary">
+      <strong>{{ data.member.fullName }}</strong>
+      <p>{{ data.member.email }}</p>
+    </div>
+  }
+
+  <form [formGroup]="form" class="dialog-form">
+    @if (!isEditMode) {
+      <div class="dialog-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput formControlName="firstName" />
+          @if (form.controls.firstName.hasError('required')) {
+            <mat-error>First name is required.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Last name</mat-label>
+          <input matInput formControlName="lastName" />
+          @if (form.controls.lastName.hasError('required')) {
+            <mat-error>Last name is required.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" autocomplete="email" />
+        @if (form.controls.email.hasError('required')) {
+          <mat-error>Email is required.</mat-error>
+        } @else if (form.controls.email.hasError('email')) {
+          <mat-error>Enter a valid email address.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Temporary password</mat-label>
+        <input matInput formControlName="password" type="password" autocomplete="new-password" />
+        @if (form.controls.password.hasError('required')) {
+          <mat-error>Password is required.</mat-error>
+        } @else if (form.controls.password.hasError('minlength')) {
+          <mat-error>Password must be at least 10 characters.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        @for (role of data.roleOptions; track role.code) {
+          <mat-option [value]="role.code">{{ role.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (selectedRole(); as role) {
+      <section class="role-summary">
+        <p>{{ role.description }}</p>
+        <div class="role-summary__permissions">
+          @for (permission of role.permissions; track permission) {
+            <span>{{ permission }}</span>
+          }
+        </div>
+      </section>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>Assigned locations</mat-label>
+      <mat-select formControlName="locationIds" multiple>
+        @for (location of data.locations; track location.id) {
+          <mat-option [value]="location.id">{{ location.name }} ({{ location.code }})</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.locationIds.hasError('required')) {
+        <mat-error>Select at least one location.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isActive">User can sign in</mat-checkbox>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">Cancel</button>
+  <button mat-flat-button type="button" (click)="submit()">
+    {{ isEditMode ? 'Save access' : 'Create user' }}
+  </button>
+</mat-dialog-actions>

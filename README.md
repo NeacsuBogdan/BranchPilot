@@ -2,14 +2,16 @@
 
 BranchPilot is a portfolio-grade multi-tenant business operations platform for companies with one or more locations.
 
-Stage 1 establishes the product foundation for authentication and tenant setup:
+Stage 2 establishes the product foundation for authentication, tenant setup, and tenant-safe team management:
 
 - ASP.NET Core 9 backend split into `Domain`, `Application`, `Infrastructure`, and `Api`
 - Angular 19 admin app with standalone components, signals, Angular Material, ESLint, Prettier, and Playwright
 - Docker Compose services for PostgreSQL and Redis
 - JWT authentication with refresh tokens
 - tenant and primary-location registration flow
-- seeded demo tenant and protected admin dashboard
+- seeded demo tenant with owner/admin users, role memberships, and location assignments
+- permission-based authorization policies and protected user-management endpoints
+- protected admin dashboard and team management workspace
 - Swagger, health checks, Serilog, solution wiring, and base CI
 
 ## Branching model
@@ -80,19 +82,23 @@ The API applies migrations and seeds demo data on startup.
 
 ## Demo access
 
-Use the seeded owner account to enter the admin workspace:
+Use one of the seeded demo accounts to enter the admin workspace:
 
 - email: `owner@branchpilot.demo`
 - password: `BranchPilot!123`
+- email: `admin@branchpilot.demo`
+- password: `BranchPilot!123`
 
-Stage 1 also supports registering a new organization from `/auth/register`. That flow creates:
+The registration flow at `/auth/register` creates:
 
 - one tenant
 - one owner account
+- one owner membership
 - one primary location
+- one location assignment for that owner
 - one authenticated session with access and refresh tokens
 
-## Stage 1 scope
+## Stage 2 scope
 
 Implemented in this stage:
 
@@ -101,11 +107,12 @@ Implemented in this stage:
 - refresh-token based session renewal
 - `/api/auth/me` session endpoint
 - tenant-scoped location listing and creation
-- protected Angular admin shell and dashboard
+- membership-based permission checks for backend endpoints
+- paged tenant user management with role and location assignment
+- protected Angular admin shell, dashboard, and team management route
 
 Not implemented yet:
 
-- memberships and RBAC policies beyond the tenant owner/admin seed path
 - catalog, customers, bookings, reporting, audit, and background jobs
 
 ## Verification

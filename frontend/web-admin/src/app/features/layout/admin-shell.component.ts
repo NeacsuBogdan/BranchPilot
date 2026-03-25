@@ -5,6 +5,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { PermissionCodes } from '../../core/auth/permission-codes';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
@@ -27,6 +28,9 @@ export class AdminShellComponent {
   private readonly authService = inject(AuthService);
 
   protected readonly session = this.authService.session;
+  protected readonly canViewUsers = computed(() =>
+    this.authService.hasPermission(PermissionCodes.usersView),
+  );
   protected readonly workspaceSubtitle = computed(() => {
     const session = this.session();
 
@@ -34,7 +38,7 @@ export class AdminShellComponent {
       return 'Preparing workspace';
     }
 
-    return `${session.tenant.slug} · ${session.locations.length} locations`;
+    return `${session.membership.role} - ${session.locations.length} locations`;
   });
 
   protected async signOut(): Promise<void> {

@@ -11,6 +11,10 @@ public interface IApplicationDbContext
 
     DbSet<AppUser> Users { get; }
 
+    DbSet<Membership> Memberships { get; }
+
+    DbSet<MembershipLocation> MembershipLocations { get; }
+
     DbSet<RefreshToken> RefreshTokens { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

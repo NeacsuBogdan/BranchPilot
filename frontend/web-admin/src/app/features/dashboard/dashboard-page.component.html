@@ -4,8 +4,8 @@
       <p class="dashboard-hero__eyebrow">Tenant workspace</p>
       <h1>{{ session.tenant.name }}</h1>
       <p>
-        {{ session.user.fullName }} is signed in. Stage 1 currently supports secure organization
-        setup, demo access, and tenant-scoped location management.
+        {{ session.user.fullName }} is signed in as {{ session.membership.role }}. Stage 2 adds
+        role-aware team management and location assignments on top of the tenant foundation.
       </p>
     </div>
 
@@ -62,55 +62,62 @@
       }
 
       <mat-card-header>
-        <mat-card-title>Add a location</mat-card-title>
-        <mat-card-subtitle>Stage 1 operational seed for multi-location support.</mat-card-subtitle>
+        <mat-card-title>Location administration</mat-card-title>
+        <mat-card-subtitle>Managed by roles with the location management permission.</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
-        <form [formGroup]="locationForm" class="location-form" (ngSubmit)="createLocation()">
-          <mat-form-field appearance="outline">
-            <mat-label>Location name</mat-label>
-            <input matInput formControlName="name" />
-            @if (locationForm.controls.name.hasError('required')) {
-              <mat-error>Location name is required.</mat-error>
+        @if (canManageLocations()) {
+          <form [formGroup]="locationForm" class="location-form" (ngSubmit)="createLocation()">
+            <mat-form-field appearance="outline">
+              <mat-label>Location name</mat-label>
+              <input matInput formControlName="name" />
+              @if (locationForm.controls.name.hasError('required')) {
+                <mat-error>Location name is required.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Location code</mat-label>
+              <input matInput formControlName="code" />
+              @if (locationForm.controls.code.hasError('required')) {
+                <mat-error>Location code is required.</mat-error>
+              } @else if (locationForm.controls.code.hasError('pattern')) {
+                <mat-error>Use letters, numbers, or dashes only.</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Time zone</mat-label>
+              <input matInput formControlName="timeZone" />
+              @if (locationForm.controls.timeZone.hasError('required')) {
+                <mat-error>Time zone is required.</mat-error>
+              }
+            </mat-form-field>
+
+            @if (errorMessage()) {
+              <p class="location-form__status location-form__status--error">{{ errorMessage() }}</p>
             }
-          </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Location code</mat-label>
-            <input matInput formControlName="code" />
-            @if (locationForm.controls.code.hasError('required')) {
-              <mat-error>Location code is required.</mat-error>
-            } @else if (locationForm.controls.code.hasError('pattern')) {
-              <mat-error>Use letters, numbers, or dashes only.</mat-error>
+            @if (successMessage()) {
+              <p class="location-form__status location-form__status--success">{{ successMessage() }}</p>
             }
-          </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Time zone</mat-label>
-            <input matInput formControlName="timeZone" />
-            @if (locationForm.controls.timeZone.hasError('required')) {
-              <mat-error>Time zone is required.</mat-error>
-            }
-          </mat-form-field>
-
-          @if (errorMessage()) {
-            <p class="location-form__status location-form__status--error">{{ errorMessage() }}</p>
-          }
-
-          @if (successMessage()) {
-            <p class="location-form__status location-form__status--success">{{ successMessage() }}</p>
-          }
-
-          <button mat-flat-button type="submit" [disabled]="isSaving()">Create location</button>
-        </form>
+            <button mat-flat-button type="submit" [disabled]="isSaving()">Create location</button>
+          </form>
+        } @else {
+          <p class="dashboard-card__empty">
+            Your current role can view tenant locations but cannot create new ones.
+          </p>
+        }
       </mat-card-content>
 
       <mat-divider></mat-divider>
 
       <mat-card-content class="dashboard-card__meta">
         <p><strong>Signed in as</strong> {{ session.user.email }}</p>
-        <p><strong>Tenant id</strong> {{ session.tenant.id }}</p>
+        <p><strong>Role</strong> {{ session.membership.role }}</p>
+        <p><strong>Assigned locations</strong> {{ session.membership.assignedLocations.length }}</p>
       </mat-card-content>
     </mat-card>
   </section>

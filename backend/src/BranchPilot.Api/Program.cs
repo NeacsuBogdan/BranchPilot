@@ -20,7 +20,10 @@ builder.Services
 
 var app = builder.Build();
 
-await app.Services.InitialiseInfrastructureAsync();
+if (!app.Configuration.GetValue<bool>("Infrastructure:SkipAutoInitialization"))
+{
+    await app.Services.InitialiseInfrastructureAsync();
+}
 
 app.UseExceptionHandler();
 app.UseSerilogRequestLogging();

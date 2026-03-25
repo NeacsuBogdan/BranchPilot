@@ -1,3 +1,4 @@
+using BranchPilot.Application.Security;
 using BranchPilot.Application.Locations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace BranchPilot.Api.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/locations")]
 public sealed class LocationsController : ControllerBase
 {
@@ -16,6 +16,7 @@ public sealed class LocationsController : ControllerBase
         _locationService = locationService;
     }
 
+    [Authorize(Policy = PermissionCodes.LocationsView)]
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<LocationResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyCollection<LocationResponse>>> GetLocationsAsync(
@@ -24,6 +25,7 @@ public sealed class LocationsController : ControllerBase
         return Ok(await _locationService.GetLocationsAsync(cancellationToken));
     }
 
+    [Authorize(Policy = PermissionCodes.LocationsManage)]
     [HttpPost]
     [ProducesResponseType(typeof(LocationResponse), StatusCodes.Status201Created)]
     public async Task<ActionResult<LocationResponse>> CreateLocationAsync(

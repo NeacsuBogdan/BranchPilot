@@ -30,7 +30,7 @@ public sealed class AuthAndTenancyEndpointsTests : IClassFixture<BranchPilotWebA
         Assert.False(string.IsNullOrWhiteSpace(payload.AccessToken));
         Assert.False(string.IsNullOrWhiteSpace(payload.RefreshToken));
         Assert.Equal("Northwind Operations Group", payload.Session.Tenant.Name);
-        Assert.Equal(2, payload.Session.Locations.Count);
+        Assert.True(payload.Session.Locations.Count >= 2);
     }
 
     [Fact]

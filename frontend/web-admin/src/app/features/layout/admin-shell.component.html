@@ -26,6 +26,16 @@
       >
         Workspace dashboard
       </a>
+
+      @if (canViewUsers()) {
+        <a
+          class="shell__nav-link"
+          routerLink="/team"
+          routerLinkActive="shell__nav-link--active"
+        >
+          Team management
+        </a>
+      }
     </nav>
 
     <div class="shell__sidebar-footer">

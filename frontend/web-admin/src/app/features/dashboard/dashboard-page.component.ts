@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { AuthService } from '../../core/auth/auth.service';
+import { PermissionCodes } from '../../core/auth/permission-codes';
 import { LocationsApiService } from '../../core/locations/locations-api.service';
 
 @Component({
@@ -33,6 +34,9 @@ export class DashboardPageComponent {
 
   protected readonly session = this.authService.session;
   protected readonly locations = computed(() => this.session()?.locations ?? []);
+  protected readonly canManageLocations = computed(() =>
+    this.authService.hasPermission(PermissionCodes.locationsManage),
+  );
   protected readonly isSaving = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
@@ -44,6 +48,10 @@ export class DashboardPageComponent {
   });
 
   protected async createLocation(): Promise<void> {
+    if (!this.canManageLocations()) {
+      return;
+    }
+
     if (this.locationForm.invalid) {
       this.locationForm.markAllAsTouched();
       return;

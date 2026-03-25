@@ -1,0 +1,129 @@
+<section class="team-hero">
+  <div>
+    <p class="team-hero__eyebrow">Stage 2</p>
+    <h1>Roles, memberships, and team access</h1>
+    <p>
+      Manage tenant users, assign operational locations, and keep access boundaries explicit for
+      every workspace member.
+    </p>
+  </div>
+
+  <div class="team-hero__metrics">
+    <article>
+      <strong>{{ totalUsers() }}</strong>
+      <span>Total team members</span>
+    </article>
+    <article>
+      <strong>{{ availableLocations().length }}</strong>
+      <span>Tenant locations</span>
+    </article>
+  </div>
+</section>
+
+<mat-card appearance="outlined" class="team-card">
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card-header>
+    <div class="team-card__header">
+      <div>
+        <mat-card-title>Team roster</mat-card-title>
+        <mat-card-subtitle>
+          Paged user management with role-based access and location assignments.
+        </mat-card-subtitle>
+      </div>
+
+      @if (canManageUsers()) {
+        <button mat-flat-button type="button" (click)="openCreateDialog()">
+          <mat-icon>person_add</mat-icon>
+          Add user
+        </button>
+      }
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="searchForm" class="team-search" (ngSubmit)="applySearch()">
+      <mat-form-field appearance="outline">
+        <mat-label>Search team</mat-label>
+        <input
+          matInput
+          formControlName="search"
+          placeholder="Search by name or email"
+          autocomplete="off"
+        />
+      </mat-form-field>
+
+      <button mat-stroked-button type="submit">Apply filter</button>
+    </form>
+
+    @if (errorMessage()) {
+      <p class="team-card__error">{{ errorMessage() }}</p>
+    }
+
+    @if (pageResponse(); as pageResponse) {
+      @if (pageResponse.items.length > 0) {
+        <div class="team-table-shell">
+          <table class="team-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Assigned locations</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (member of pageResponse.items; track member.id) {
+                <tr>
+                  <td>
+                    <strong>{{ member.fullName }}</strong>
+                    <span>{{ member.email }}</span>
+                  </td>
+                  <td>
+                    <mat-chip-set>
+                      <mat-chip>{{ member.membership.role }}</mat-chip>
+                    </mat-chip-set>
+                  </td>
+                  <td>
+                    <div class="team-table__locations">
+                      @for (location of member.membership.assignedLocations; track location.id) {
+                        <span>{{ location.name }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="team-status" [class.team-status--inactive]="!member.isActive">
+                      {{ member.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (canManageUsers()) {
+                      <button mat-button type="button" (click)="openEditDialog(member)">
+                        Edit access
+                      </button>
+                    } @else {
+                      <span class="team-table__muted">Read only</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="team-card__empty">No users matched the current filter.</p>
+      }
+
+      <mat-paginator
+        [length]="pageResponse.totalCount"
+        [pageIndex]="pageResponse.page - 1"
+        [pageSize]="pageResponse.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="changePage($event)"
+      />
+    }
+  </mat-card-content>
+</mat-card>

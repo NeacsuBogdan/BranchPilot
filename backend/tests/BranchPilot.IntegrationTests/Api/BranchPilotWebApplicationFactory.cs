@@ -1,6 +1,8 @@
+using BranchPilot.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
 namespace BranchPilot.IntegrationTests.Api;
@@ -8,7 +10,7 @@ namespace BranchPilot.IntegrationTests.Api;
 public sealed class BranchPilotWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _databaseContainer = new PostgreSqlBuilder("postgres:17-alpine")
-        .WithDatabase("branchpilot_tests")
+        .WithDatabase($"branchpilot_tests_{Guid.NewGuid():N}")
         .WithUsername("branchpilot")
         .WithPassword("branchpilot")
         .Build();
@@ -24,6 +26,7 @@ public sealed class BranchPilotWebApplicationFactory : WebApplicationFactory<Pro
                     {
                         ["ConnectionStrings:Postgres"] = _databaseContainer.GetConnectionString(),
                         ["ConnectionStrings:Redis"] = "localhost:6379",
+                        ["Infrastructure:SkipAutoInitialization"] = "true",
                     });
             });
     }
@@ -39,6 +42,22 @@ public sealed class BranchPilotWebApplicationFactory : WebApplicationFactory<Pro
     public async Task InitializeAsync()
     {
         await _databaseContainer.StartAsync();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:Postgres"] = _databaseContainer.GetConnectionString(),
+                    ["ConnectionStrings:Redis"] = "localhost:6379",
+                })
+            .Build();
+
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddInfrastructure(configuration);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        await serviceProvider.InitialiseInfrastructureAsync();
     }
 
     public new async Task DisposeAsync()

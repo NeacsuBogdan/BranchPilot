@@ -38,6 +38,49 @@ Accept: application/json
 
 ###
 
+GET {{BranchPilot_Api_HostAddress}}/api/users/roles
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/users?page=1&pageSize=10
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/users
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Bianca",
+  "lastName": "Matei",
+  "email": "bianca.matei@northwind.test",
+  "password": "BranchPilot!123",
+  "role": "Manager",
+  "locationIds": [
+    "11111111-1111-1111-1111-111111111111"
+  ]
+}
+
+###
+
+PUT {{BranchPilot_Api_HostAddress}}/api/users/11111111-1111-1111-1111-111111111111/membership
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "role": "Admin",
+  "isActive": true,
+  "locationIds": [
+    "11111111-1111-1111-1111-111111111111"
+  ]
+}
+
+###
+
 GET {{BranchPilot_Api_HostAddress}}/api/locations
 Authorization: Bearer {{AccessToken}}
 Accept: application/json

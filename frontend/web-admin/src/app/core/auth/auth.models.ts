@@ -21,6 +21,7 @@ export interface LocationSummary {
 
 export interface CurrentSessionResponse {
   user: UserSummary;
+  membership: MembershipSummary;
   tenant: TenantSummary;
   locations: LocationSummary[];
 }
@@ -55,4 +56,11 @@ export interface AuthStorageState {
   refreshToken: string;
   refreshTokenExpiresAtUtc: string;
   session: CurrentSessionResponse | null;
+}
+
+export interface MembershipSummary {
+  id: string;
+  role: string;
+  permissions: string[];
+  assignedLocations: LocationSummary[];
 }

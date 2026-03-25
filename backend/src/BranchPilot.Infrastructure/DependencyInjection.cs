@@ -5,6 +5,7 @@ using BranchPilot.Domain.Entities;
 using BranchPilot.Infrastructure.Auth;
 using BranchPilot.Infrastructure.Persistence;
 using BranchPilot.Infrastructure.Seeding;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<DemoDataSeeder>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services.AddDbContext<BranchPilotDbContext>(options =>
         {

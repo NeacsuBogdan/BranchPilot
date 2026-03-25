@@ -1,5 +1,6 @@
 using System.Text;
 using BranchPilot.Api.Exceptions;
+using BranchPilot.Application.Security;
 using BranchPilot.Infrastructure.Auth;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,14 +52,26 @@ public static class ServiceCollectionExtensions
                     ClockSkew = TimeSpan.FromSeconds(30),
                 };
             });
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            foreach (var permission in PermissionCodes.All)
+            {
+                options.AddPolicy(
+                    permission,
+                    policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                        policy.AddRequirements(new PermissionRequirement(permission));
+                    });
+            }
+        });
         services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "BranchPilot API",
                 Version = "v1",
-                Description = "Auth and tenancy foundation for the BranchPilot multi-tenant operations platform."
+                Description = "Auth, membership, and authorization foundation for the BranchPilot multi-tenant operations platform."
             });
             options.AddSecurityDefinition(
                 "Bearer",

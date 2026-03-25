@@ -133,6 +133,10 @@ export class AuthService {
     return this.refreshTokenState();
   }
 
+  hasPermission(permission: string): boolean {
+    return this.sessionState()?.membership.permissions.includes(permission) ?? false;
+  }
+
   clearSession(): void {
     this.accessTokenState.set(null);
     this.accessTokenExpiresAtState.set(null);

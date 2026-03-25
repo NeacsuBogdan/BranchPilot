@@ -1,5 +1,6 @@
 using BranchPilot.Application.Auth;
 using BranchPilot.Application.Locations;
+using BranchPilot.Application.Users;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +15,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddScoped<AuthService>();
         services.AddScoped<LocationService>();
+        services.AddScoped<UserManagementService>();
 
         return services;
     }

@@ -93,6 +93,61 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     }
 }
 
+internal sealed class MembershipConfiguration : IEntityTypeConfiguration<Membership>
+{
+    public void Configure(EntityTypeBuilder<Membership> builder)
+    {
+        builder.ToTable("Memberships");
+
+        builder.HasKey(membership => membership.Id);
+
+        builder.Property(membership => membership.Role)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(membership => membership.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<AppUser>()
+            .WithMany()
+            .HasForeignKey(membership => membership.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(membership => new { membership.TenantId, membership.UserId })
+            .IsUnique();
+    }
+}
+
+internal sealed class MembershipLocationConfiguration : IEntityTypeConfiguration<MembershipLocation>
+{
+    public void Configure(EntityTypeBuilder<MembershipLocation> builder)
+    {
+        builder.ToTable("MembershipLocations");
+
+        builder.HasKey(assignment => new { assignment.MembershipId, assignment.LocationId });
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(assignment => assignment.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Membership>()
+            .WithMany()
+            .HasForeignKey(assignment => assignment.MembershipId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Location>()
+            .WithMany()
+            .HasForeignKey(assignment => assignment.LocationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(assignment => new { assignment.TenantId, assignment.LocationId });
+    }
+}
+
 internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
     public void Configure(EntityTypeBuilder<RefreshToken> builder)
