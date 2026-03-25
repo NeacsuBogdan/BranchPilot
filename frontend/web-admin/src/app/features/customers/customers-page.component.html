@@ -1,0 +1,129 @@
+<section class="customers-hero">
+  <div>
+    <p class="customers-hero__eyebrow">Stage 4</p>
+    <h1>Customers</h1>
+    <p>
+      Manage tenant-scoped customer records used by bookings, reminders, and future operational
+      reporting.
+    </p>
+  </div>
+
+  <div class="customers-hero__metrics">
+    <article>
+      <strong>{{ totalCustomers() }}</strong>
+      <span>Total customers</span>
+    </article>
+    <article>
+      <strong>{{ activeCustomersOnPage() }}</strong>
+      <span>Active on page</span>
+    </article>
+  </div>
+</section>
+
+<mat-card appearance="outlined" class="customers-card">
+  @if (isLoading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card-header>
+    <div class="customers-card__header">
+      <div>
+        <mat-card-title>Customer directory</mat-card-title>
+        <mat-card-subtitle>
+          Search and maintain customer records with explicit booking history visibility.
+        </mat-card-subtitle>
+      </div>
+
+      @if (canManageCustomers()) {
+        <button mat-flat-button type="button" (click)="openCreateDialog()">Add customer</button>
+      }
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="filtersForm" class="customers-filters" (ngSubmit)="applyFilters()">
+      <mat-form-field appearance="outline">
+        <mat-label>Search</mat-label>
+        <input matInput formControlName="search" placeholder="Search by name, email, or phone" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="inactive">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="submit">Apply filters</button>
+    </form>
+
+    @if (errorMessage()) {
+      <p class="customers-card__error">{{ errorMessage() }}</p>
+    }
+
+    @if (pageResponse(); as pageResponse) {
+      @if (pageResponse.items.length > 0) {
+        <div class="customers-table-shell">
+          <table class="customers-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Notes</th>
+                <th>Bookings</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (customer of pageResponse.items; track customer.id) {
+                <tr>
+                  <td>
+                    <strong>{{ customer.fullName }}</strong>
+                    <span>Created {{ customer.createdAtUtc | date: 'dd MMM yyyy' }}</span>
+                  </td>
+                  <td>
+                    <strong>{{ customer.email }}</strong>
+                    <span>{{ customer.phoneNumber || 'No phone number recorded' }}</span>
+                  </td>
+                  <td>
+                    <span>{{ customer.notes || 'No notes recorded.' }}</span>
+                  </td>
+                  <td>
+                    <strong>{{ customer.bookingCount }}</strong>
+                    <span>Bookings</span>
+                  </td>
+                  <td>
+                    <span class="customers-status" [class.customers-status--inactive]="!customer.isActive">
+                      {{ customer.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (canManageCustomers()) {
+                      <button mat-button type="button" (click)="openEditDialog(customer)">Edit</button>
+                      <button mat-button type="button" (click)="deleteCustomer(customer)">Delete</button>
+                    } @else {
+                      <span class="customers-table__muted">Read only</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="customers-card__empty">No customers matched the current filters.</p>
+      }
+
+      <mat-paginator
+        [length]="pageResponse.totalCount"
+        [pageIndex]="pageResponse.page - 1"
+        [pageSize]="pageResponse.pageSize"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="changePage($event)"
+      />
+    }
+  </mat-card-content>
+</mat-card>

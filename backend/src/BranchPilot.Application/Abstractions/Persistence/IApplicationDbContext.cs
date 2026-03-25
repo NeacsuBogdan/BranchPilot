@@ -11,6 +11,8 @@ public interface IApplicationDbContext
 
     DbSet<AppUser> Users { get; }
 
+    DbSet<Customer> Customers { get; }
+
     DbSet<Category> Categories { get; }
 
     DbSet<TaxProfile> TaxProfiles { get; }
@@ -20,6 +22,10 @@ public interface IApplicationDbContext
     DbSet<LocationPrice> LocationPrices { get; }
 
     DbSet<Promotion> Promotions { get; }
+
+    DbSet<Booking> Bookings { get; }
+
+    DbSet<BookingLine> BookingLines { get; }
 
     DbSet<Membership> Memberships { get; }
 

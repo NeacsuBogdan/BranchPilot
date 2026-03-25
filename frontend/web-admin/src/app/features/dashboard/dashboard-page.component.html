@@ -1,11 +1,12 @@
 @if (session(); as session) {
   <section class="dashboard-hero">
     <div>
-      <p class="dashboard-hero__eyebrow">Tenant workspace</p>
+      <p class="dashboard-hero__eyebrow">Stage 4</p>
       <h1>{{ session.tenant.name }}</h1>
       <p>
-        {{ session.user.fullName }} is signed in as {{ session.membership.role }}. Stage 2 adds
-        role-aware team management and location assignments on top of the tenant foundation.
+        {{ session.user.fullName }} is signed in as {{ session.membership.role }}. Stage 4 adds
+        customer operations, service bookings, and operational visibility on top of the tenant
+        and catalog foundations.
       </p>
     </div>
 
@@ -15,13 +16,85 @@
         <span>Locations</span>
       </article>
       <article>
-        <strong>{{ session.tenant.slug }}</strong>
-        <span>Tenant slug</span>
+        <strong>{{ session.membership.assignedLocations.length }}</strong>
+        <span>Assigned locations</span>
       </article>
     </div>
   </section>
 
+  @if (isLoadingSummary()) {
+    <mat-progress-bar mode="indeterminate" class="dashboard-progress" />
+  }
+
+  @if (summaryErrorMessage()) {
+    <p class="dashboard-status dashboard-status--error">{{ summaryErrorMessage() }}</p>
+  }
+
+  <section class="dashboard-summary-grid">
+    <article class="dashboard-summary-card">
+      <strong>{{ summary()?.activeCustomers ?? 0 }}</strong>
+      <span>Active customers</span>
+    </article>
+
+    <article class="dashboard-summary-card">
+      <strong>{{ summary()?.scheduledBookings ?? 0 }}</strong>
+      <span>Scheduled bookings</span>
+    </article>
+
+    <article class="dashboard-summary-card">
+      <strong>{{ summary()?.confirmedBookings ?? 0 }}</strong>
+      <span>Confirmed bookings</span>
+    </article>
+
+    <article class="dashboard-summary-card">
+      <strong>{{ summary()?.nextSevenDaysBookings ?? 0 }}</strong>
+      <span>Next 7 days</span>
+    </article>
+  </section>
+
   <section class="dashboard-grid">
+    <mat-card appearance="outlined" class="dashboard-card">
+      <mat-card-header>
+        <mat-card-title>Upcoming bookings</mat-card-title>
+        <mat-card-subtitle>Immediate operational workload across the current tenant.</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (summary()?.upcomingBookings?.length) {
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Booking</th>
+                  <th>Customer</th>
+                  <th>Location</th>
+                  <th>Window</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (booking of summary()?.upcomingBookings ?? []; track booking.id) {
+                  <tr>
+                    <td>
+                      <strong>{{ booking.number }}</strong>
+                      <span>{{ booking.status }}</span>
+                    </td>
+                    <td>{{ booking.customerName }}</td>
+                    <td>{{ booking.locationName }}</td>
+                    <td>
+                      <strong>{{ booking.startsAtUtc | date: 'dd MMM yyyy, HH:mm' }}</strong>
+                      <span>{{ booking.endsAtUtc | date: 'HH:mm' }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="dashboard-card__empty">No upcoming bookings are scheduled yet.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
     <mat-card appearance="outlined" class="dashboard-card">
       <mat-card-header>
         <mat-card-title>Location directory</mat-card-title>
@@ -56,7 +129,7 @@
       </mat-card-content>
     </mat-card>
 
-    <mat-card appearance="outlined" class="dashboard-card">
+    <mat-card appearance="outlined" class="dashboard-card dashboard-card--admin">
       @if (isSaving()) {
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
       }
@@ -96,11 +169,11 @@
             </mat-form-field>
 
             @if (errorMessage()) {
-              <p class="location-form__status location-form__status--error">{{ errorMessage() }}</p>
+              <p class="dashboard-status dashboard-status--error">{{ errorMessage() }}</p>
             }
 
             @if (successMessage()) {
-              <p class="location-form__status location-form__status--success">{{ successMessage() }}</p>
+              <p class="dashboard-status dashboard-status--success">{{ successMessage() }}</p>
             }
 
             <button mat-flat-button type="submit" [disabled]="isSaving()">Create location</button>
@@ -117,7 +190,7 @@
       <mat-card-content class="dashboard-card__meta">
         <p><strong>Signed in as</strong> {{ session.user.email }}</p>
         <p><strong>Role</strong> {{ session.membership.role }}</p>
-        <p><strong>Assigned locations</strong> {{ session.membership.assignedLocations.length }}</p>
+        <p><strong>Tenant slug</strong> {{ session.tenant.slug }}</p>
       </mat-card-content>
     </mat-card>
   </section>

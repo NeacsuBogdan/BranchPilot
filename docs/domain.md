@@ -24,7 +24,7 @@ The long-term product direction remains fixed around the following tenant-scoped
 - RefreshToken
 - JobRunHistory
 
-Implemented in Stage 3:
+Implemented in Stage 4:
 
 - `Tenant`
   - represents the company boundary for the workspace
@@ -50,6 +50,12 @@ Implemented in Stage 3:
   - assigns a location-specific price to one catalog item inside the same tenant
 - `Promotion`
   - applies a date-ranged percentage discount to one catalog item at one location
+- `Customer`
+  - tenant-scoped customer identity used by bookings, reminders, and later reporting
+- `Booking`
+  - tenant-scoped scheduled operational service record linked to one customer and one location
+- `BookingLine`
+  - snapshot of booked services, durations, and location-specific prices for one booking
 
 Current business rules introduced in this stage:
 
@@ -71,3 +77,11 @@ Current business rules introduced in this stage:
 - all location prices for a single item must share the same currency
 - promotions can only target locations that already have a defined price for the item
 - promotion windows for the same item and location must not overlap
+- customer emails must be unique within a tenant
+- customers with booking history cannot be deleted
+- bookings must contain at least one service line
+- only active service catalog items with location pricing can be scheduled as bookings
+- all services in one booking must use the same currency at the chosen location
+- bookings must be scheduled in the future
+- scheduled and confirmed bookings cannot overlap at the same location
+- completed or cancelled bookings cannot be rescheduled or cancelled again

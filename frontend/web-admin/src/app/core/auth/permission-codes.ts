@@ -4,6 +4,10 @@ export const PermissionCodes = {
   locationsManage: 'locations.manage',
   catalogView: 'catalog.view',
   catalogManage: 'catalog.manage',
+  customersView: 'customers.view',
+  customersManage: 'customers.manage',
+  bookingsView: 'bookings.view',
+  bookingsManage: 'bookings.manage',
   usersView: 'users.view',
   usersManage: 'users.manage',
 } as const;

@@ -1,6 +1,6 @@
 # API Examples
 
-Stage 3 exposes authentication, tenant setup, membership-based user administration, and tenant-scoped catalog management with pricing and promotions.
+Stage 4 exposes authentication, tenant setup, membership-based user administration, tenant-scoped catalog management, customer CRUD, and service booking operations.
 
 ## Login with seeded demo account
 
@@ -40,6 +40,10 @@ Example response:
         "locations.manage",
         "catalog.view",
         "catalog.manage",
+        "customers.view",
+        "customers.manage",
+        "bookings.view",
+        "bookings.manage",
         "users.view",
         "users.manage"
       ],
@@ -130,6 +134,10 @@ Example response:
         "locations.manage",
         "catalog.view",
         "catalog.manage",
+        "customers.view",
+        "customers.manage",
+        "bookings.view",
+        "bookings.manage",
         "users.view",
         "users.manage"
       ]
@@ -140,7 +148,11 @@ Example response:
     "description": "Workspace access for day-to-day operations without administrative privileges.",
     "permissions": [
       "dashboard.view",
-      "locations.view"
+      "locations.view",
+      "customers.view",
+      "customers.manage",
+      "bookings.view",
+      "bookings.manage"
     ]
   }
 ]
@@ -307,6 +319,104 @@ Accept: application/json
       "endsAtUtc": "2026-04-02T20:00:00Z"
     }
   ]
+}
+```
+
+## Dashboard summary
+
+```http
+GET /api/dashboard/summary
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## List customers
+
+```http
+GET /api/customers?page=1&pageSize=10&search=marin
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## Create customer
+
+```http
+POST /api/customers
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "Elena",
+  "lastName": "Marin",
+  "email": "elena.marin@northwind.test",
+  "phoneNumber": "+40 721 100 200",
+  "notes": "Repeat enterprise customer."
+}
+```
+
+## Booking options
+
+```http
+GET /api/bookings/options
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## Create booking
+
+```http
+POST /api/bookings
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerId": "9f39b47e-0ef7-4eeb-9e0a-f1c975b7d8ab",
+  "locationId": "ba7fe3f1-97ca-4cb3-9b9d-dabf46bf6910",
+  "startsAtUtc": "2026-03-30T09:00:00Z",
+  "notes": "Premium consultation for next-week branch review.",
+  "lines": [
+    {
+      "catalogItemId": "0d3fca24-1841-457b-b7ab-b0db37808a94",
+      "quantity": 1
+    }
+  ]
+}
+```
+
+## Confirm booking
+
+```http
+POST /api/bookings/0d3fca24-1841-457b-b7ab-b0db37808a94/confirm
+Authorization: Bearer <access-token>
+Accept: application/json
+```
+
+## Reschedule booking
+
+```http
+POST /api/bookings/0d3fca24-1841-457b-b7ab-b0db37808a94/reschedule
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "startsAtUtc": "2026-03-30T12:00:00Z",
+  "reason": "Customer requested an afternoon slot."
+}
+```
+
+## Cancel booking
+
+```http
+POST /api/bookings/0d3fca24-1841-457b-b7ab-b0db37808a94/cancel
+Authorization: Bearer <access-token>
+Content-Type: application/json
+Accept: application/json
+
+{
+  "reason": "Customer is unavailable."
 }
 ```
 

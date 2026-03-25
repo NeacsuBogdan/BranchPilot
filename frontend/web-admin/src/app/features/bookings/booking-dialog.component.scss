@@ -1,0 +1,74 @@
+.booking-dialog {
+  padding-top: 0.25rem;
+}
+
+.booking-dialog__form,
+.booking-dialog__stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.booking-dialog__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.booking-dialog__section {
+  display: grid;
+  gap: 1rem;
+}
+
+.booking-dialog__section-header {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.booking-dialog__section-header h3,
+.booking-dialog__section-header p,
+.booking-dialog__summary,
+.booking-dialog__error {
+  margin: 0;
+}
+
+.booking-dialog__row {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr) 140px auto;
+}
+
+.booking-dialog__summary {
+  color: var(--bp-text-muted);
+}
+
+.booking-dialog__summary span {
+  margin-left: 1rem;
+}
+
+.booking-dialog__error {
+  color: #ab1d1d;
+}
+
+.booking-dialog__form .mat-mdc-form-field {
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .booking-dialog__grid,
+  .booking-dialog__row {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-dialog__section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .booking-dialog__summary span {
+    display: block;
+    margin: 0.35rem 0 0;
+  }
+}

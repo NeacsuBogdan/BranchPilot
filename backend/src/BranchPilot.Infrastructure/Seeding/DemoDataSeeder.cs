@@ -37,6 +37,7 @@ public sealed class DemoDataSeeder
 
         await EnsureMembershipBackfillAsync(cancellationToken);
         await EnsureCatalogSeedAsync(cancellationToken);
+        await EnsureOperationalSeedAsync(cancellationToken);
     }
 
     private async Task SeedFreshDemoTenantAsync(CancellationToken cancellationToken)
@@ -422,5 +423,218 @@ public sealed class DemoDataSeeder
             ("RETAIL-CARE-KIT", _) => 31m,
             _ => 20m,
         };
+    }
+
+    private async Task EnsureOperationalSeedAsync(CancellationToken cancellationToken)
+    {
+        var demoTenant = await _dbContext.Tenants
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .OrderBy(tenant => tenant.CreatedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (demoTenant is null)
+        {
+            return;
+        }
+
+        var now = _dateTimeProvider.UtcNow;
+        var customers = await _dbContext.Customers
+            .IgnoreQueryFilters()
+            .Where(customer => customer.TenantId == demoTenant.Id)
+            .OrderBy(customer => customer.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        if (customers.Count == 0)
+        {
+            customers =
+            [
+                new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = demoTenant.Id,
+                    FirstName = "Elena",
+                    LastName = "Marin",
+                    Email = "elena.marin@northwind.demo",
+                    NormalizedEmail = "ELENA.MARIN@NORTHWIND.DEMO",
+                    PhoneNumber = "+40 721 100 200",
+                    Notes = "Repeat enterprise customer with premium consultation history.",
+                    IsActive = true,
+                    CreatedAtUtc = now.AddDays(-30),
+                },
+                new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = demoTenant.Id,
+                    FirstName = "Victor",
+                    LastName = "Petrescu",
+                    Email = "victor.petrescu@northwind.demo",
+                    NormalizedEmail = "VICTOR.PETRESCU@NORTHWIND.DEMO",
+                    PhoneNumber = "+40 722 300 400",
+                    Notes = "Operational follow-up customer with recurring weekday visits.",
+                    IsActive = true,
+                    CreatedAtUtc = now.AddDays(-20),
+                },
+                new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = demoTenant.Id,
+                    FirstName = "Bianca",
+                    LastName = "Radu",
+                    Email = "bianca.radu@northwind.demo",
+                    NormalizedEmail = "BIANCA.RADU@NORTHWIND.DEMO",
+                    PhoneNumber = "+40 723 500 600",
+                    Notes = "Retail and advisory customer used in the dashboard demo.",
+                    IsActive = true,
+                    CreatedAtUtc = now.AddDays(-10),
+                },
+            ];
+
+            await _dbContext.Customers.AddRangeAsync(customers, cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        var bookingExists = await _dbContext.Bookings
+            .IgnoreQueryFilters()
+            .AnyAsync(booking => booking.TenantId == demoTenant.Id, cancellationToken);
+
+        if (bookingExists)
+        {
+            return;
+        }
+
+        var locations = await _dbContext.Locations
+            .IgnoreQueryFilters()
+            .Where(location => location.TenantId == demoTenant.Id)
+            .OrderBy(location => location.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var services = await _dbContext.CatalogItems
+            .IgnoreQueryFilters()
+            .Where(
+                item =>
+                    item.TenantId == demoTenant.Id &&
+                    item.ItemType == CatalogItemType.Service &&
+                    item.DurationInMinutes.HasValue)
+            .OrderBy(item => item.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        if (locations.Count == 0 || services.Count == 0 || customers.Count == 0)
+        {
+            return;
+        }
+
+        var locationPrices = await _dbContext.LocationPrices
+            .IgnoreQueryFilters()
+            .Where(
+                locationPrice =>
+                    locationPrice.TenantId == demoTenant.Id &&
+                    services.Select(service => service.Id).Contains(locationPrice.CatalogItemId))
+            .ToListAsync(cancellationToken);
+
+        var pricesByKey = locationPrices.ToDictionary(
+            locationPrice => (locationPrice.CatalogItemId, locationPrice.LocationId),
+            locationPrice => locationPrice);
+        var primaryService = services[0];
+        var secondaryService = services[Math.Min(1, services.Count - 1)];
+        var primaryLocation = locations[0];
+        var secondaryLocation = locations[Math.Min(1, locations.Count - 1)];
+        var primaryDuration = primaryService.DurationInMinutes ?? 0;
+        var secondaryDuration = secondaryService.DurationInMinutes ?? 0;
+
+        var bookings = new[]
+        {
+            new Booking
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                LocationId = primaryLocation.Id,
+                CustomerId = customers[0].Id,
+                Number = "BK-DEMO-001",
+                Status = BookingStatus.Scheduled,
+                StartsAtUtc = CreateSeedBookingSlot(now, 1, 9),
+                EndsAtUtc = CreateSeedBookingSlot(now, 1, 9).AddMinutes(primaryDuration),
+                Notes = "Premium consultation for next-day operations review.",
+                CurrencyCode = pricesByKey[(primaryService.Id, primaryLocation.Id)].CurrencyCode,
+                TotalAmount = pricesByKey[(primaryService.Id, primaryLocation.Id)].PriceAmount,
+                TotalDurationInMinutes = primaryDuration,
+                CreatedAtUtc = now.AddDays(-2),
+            },
+            new Booking
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                LocationId = secondaryLocation.Id,
+                CustomerId = customers[Math.Min(1, customers.Count - 1)].Id,
+                Number = "BK-DEMO-002",
+                Status = BookingStatus.Confirmed,
+                StartsAtUtc = CreateSeedBookingSlot(now, 2, 11),
+                EndsAtUtc = CreateSeedBookingSlot(now, 2, 11).AddMinutes(secondaryDuration),
+                Notes = "Confirmed express follow-up for branch readiness checks.",
+                CurrencyCode = pricesByKey[(secondaryService.Id, secondaryLocation.Id)].CurrencyCode,
+                TotalAmount = pricesByKey[(secondaryService.Id, secondaryLocation.Id)].PriceAmount,
+                TotalDurationInMinutes = secondaryDuration,
+                CreatedAtUtc = now.AddDays(-3),
+                ConfirmedAtUtc = now.AddDays(-1),
+            },
+            new Booking
+            {
+                Id = Guid.NewGuid(),
+                TenantId = demoTenant.Id,
+                LocationId = primaryLocation.Id,
+                CustomerId = customers[Math.Min(2, customers.Count - 1)].Id,
+                Number = "BK-DEMO-003",
+                Status = BookingStatus.Completed,
+                StartsAtUtc = CreateSeedBookingSlot(now, -1, 14),
+                EndsAtUtc = CreateSeedBookingSlot(now, -1, 14).AddMinutes(primaryDuration),
+                Notes = "Completed advisory session used in the lifecycle demo.",
+                CurrencyCode = pricesByKey[(primaryService.Id, primaryLocation.Id)].CurrencyCode,
+                TotalAmount = pricesByKey[(primaryService.Id, primaryLocation.Id)].PriceAmount,
+                TotalDurationInMinutes = primaryDuration,
+                CreatedAtUtc = now.AddDays(-6),
+                ConfirmedAtUtc = now.AddDays(-5),
+                CompletedAtUtc = CreateSeedBookingSlot(now, -1, 15),
+            },
+        };
+
+        var bookingLines = new[]
+        {
+            CreateSeedBookingLine(demoTenant.Id, bookings[0].Id, primaryService, pricesByKey[(primaryService.Id, primaryLocation.Id)]),
+            CreateSeedBookingLine(
+                demoTenant.Id,
+                bookings[1].Id,
+                secondaryService,
+                pricesByKey[(secondaryService.Id, secondaryLocation.Id)]),
+            CreateSeedBookingLine(demoTenant.Id, bookings[2].Id, primaryService, pricesByKey[(primaryService.Id, primaryLocation.Id)]),
+        };
+
+        await _dbContext.Bookings.AddRangeAsync(bookings, cancellationToken);
+        await _dbContext.BookingLines.AddRangeAsync(bookingLines, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static BookingLine CreateSeedBookingLine(
+        Guid tenantId,
+        Guid bookingId,
+        CatalogItem service,
+        LocationPrice locationPrice)
+    {
+        return new BookingLine
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            BookingId = bookingId,
+            CatalogItemId = service.Id,
+            ItemName = service.Name,
+            Quantity = 1,
+            DurationInMinutes = service.DurationInMinutes ?? 0,
+            UnitPriceAmount = locationPrice.PriceAmount,
+            LineTotalAmount = locationPrice.PriceAmount,
+        };
+    }
+
+    private static DateTimeOffset CreateSeedBookingSlot(DateTimeOffset now, int dayOffset, int hour)
+    {
+        return new DateTimeOffset(now.UtcDateTime.Date.AddDays(dayOffset).AddHours(hour), TimeSpan.Zero);
     }
 }

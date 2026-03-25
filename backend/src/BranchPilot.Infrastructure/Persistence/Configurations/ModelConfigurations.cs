@@ -93,6 +93,48 @@ internal sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     }
 }
 
+internal sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+{
+    public void Configure(EntityTypeBuilder<Customer> builder)
+    {
+        builder.ToTable("Customers");
+
+        builder.HasKey(customer => customer.Id);
+
+        builder.Property(customer => customer.FirstName)
+            .HasMaxLength(80)
+            .IsRequired();
+
+        builder.Property(customer => customer.LastName)
+            .HasMaxLength(80)
+            .IsRequired();
+
+        builder.Property(customer => customer.Email)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(customer => customer.NormalizedEmail)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Property(customer => customer.PhoneNumber)
+            .HasMaxLength(40)
+            .IsRequired();
+
+        builder.Property(customer => customer.Notes)
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(customer => customer.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(customer => new { customer.TenantId, customer.NormalizedEmail })
+            .IsUnique();
+    }
+}
+
 internal sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
@@ -256,6 +298,101 @@ internal sealed class PromotionConfiguration : IEntityTypeConfiguration<Promotio
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(promotion => new { promotion.TenantId, promotion.CatalogItemId, promotion.LocationId, promotion.StartsAtUtc });
+    }
+}
+
+internal sealed class BookingConfiguration : IEntityTypeConfiguration<Booking>
+{
+    public void Configure(EntityTypeBuilder<Booking> builder)
+    {
+        builder.ToTable("Bookings");
+
+        builder.HasKey(booking => booking.Id);
+
+        builder.Property(booking => booking.Number)
+            .HasMaxLength(24)
+            .IsRequired();
+
+        builder.Property(booking => booking.Status)
+            .HasConversion<string>()
+            .HasMaxLength(24)
+            .IsRequired();
+
+        builder.Property(booking => booking.Notes)
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        builder.Property(booking => booking.CurrencyCode)
+            .HasMaxLength(3)
+            .IsRequired();
+
+        builder.Property(booking => booking.TotalAmount)
+            .HasPrecision(18, 2);
+
+        builder.Property(booking => booking.CancellationReason)
+            .HasMaxLength(300)
+            .IsRequired();
+
+        builder.Property(booking => booking.RescheduleReason)
+            .HasMaxLength(300)
+            .IsRequired();
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(booking => booking.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Location>()
+            .WithMany()
+            .HasForeignKey(booking => booking.LocationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(booking => booking.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(booking => new { booking.TenantId, booking.Number })
+            .IsUnique();
+
+        builder.HasIndex(booking => new { booking.TenantId, booking.LocationId, booking.StartsAtUtc });
+    }
+}
+
+internal sealed class BookingLineConfiguration : IEntityTypeConfiguration<BookingLine>
+{
+    public void Configure(EntityTypeBuilder<BookingLine> builder)
+    {
+        builder.ToTable("BookingLines");
+
+        builder.HasKey(bookingLine => bookingLine.Id);
+
+        builder.Property(bookingLine => bookingLine.ItemName)
+            .HasMaxLength(120)
+            .IsRequired();
+
+        builder.Property(bookingLine => bookingLine.UnitPriceAmount)
+            .HasPrecision(18, 2);
+
+        builder.Property(bookingLine => bookingLine.LineTotalAmount)
+            .HasPrecision(18, 2);
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(bookingLine => bookingLine.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Booking>()
+            .WithMany()
+            .HasForeignKey(bookingLine => bookingLine.BookingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<CatalogItem>()
+            .WithMany()
+            .HasForeignKey(bookingLine => bookingLine.CatalogItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(bookingLine => new { bookingLine.TenantId, bookingLine.BookingId });
     }
 }
 

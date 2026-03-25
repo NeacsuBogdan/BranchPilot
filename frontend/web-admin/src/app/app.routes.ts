@@ -49,6 +49,22 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/catalog/catalog-page.component').then((m) => m.CatalogPageComponent),
       },
+      {
+        path: 'customers',
+        canActivate: [permissionGuard(PermissionCodes.customersView)],
+        loadComponent: () =>
+          import('./features/customers/customers-page.component').then(
+            (m) => m.CustomersPageComponent,
+          ),
+      },
+      {
+        path: 'bookings',
+        canActivate: [permissionGuard(PermissionCodes.bookingsView)],
+        loadComponent: () =>
+          import('./features/bookings/bookings-page.component').then(
+            (m) => m.BookingsPageComponent,
+          ),
+      },
     ],
   },
   {

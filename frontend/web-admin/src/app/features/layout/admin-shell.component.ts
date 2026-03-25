@@ -34,6 +34,12 @@ export class AdminShellComponent {
   protected readonly canViewCatalog = computed(() =>
     this.authService.hasPermission(PermissionCodes.catalogView),
   );
+  protected readonly canViewCustomers = computed(() =>
+    this.authService.hasPermission(PermissionCodes.customersView),
+  );
+  protected readonly canViewBookings = computed(() =>
+    this.authService.hasPermission(PermissionCodes.bookingsView),
+  );
   protected readonly workspaceSubtitle = computed(() => {
     const session = this.session();
 

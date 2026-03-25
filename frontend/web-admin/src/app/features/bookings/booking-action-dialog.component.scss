@@ -1,0 +1,17 @@
+.booking-action-dialog {
+  padding-top: 0.25rem;
+}
+
+.booking-action-dialog__form {
+  display: grid;
+  gap: 1rem;
+}
+
+.booking-action-dialog__reference {
+  margin: 0;
+  color: var(--bp-text-muted);
+}
+
+.booking-action-dialog__form .mat-mdc-form-field {
+  width: 100%;
+}

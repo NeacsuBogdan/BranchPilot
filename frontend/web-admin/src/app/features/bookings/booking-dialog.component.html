@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>Create booking</h2>
+
+<mat-dialog-content class="booking-dialog">
+  <form [formGroup]="form" class="booking-dialog__form">
+    <div class="booking-dialog__grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Customer</mat-label>
+        <mat-select formControlName="customerId">
+          @for (customer of data.options.customers; track customer.id) {
+            <mat-option [value]="customer.id">{{ customer.fullName }} - {{ customer.email }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Location</mat-label>
+        <mat-select formControlName="locationId">
+          @for (location of data.options.locations; track location.id) {
+            <mat-option [value]="location.id">{{ location.name }} - {{ location.code }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start time</mat-label>
+        <input matInput type="datetime-local" formControlName="startsAtUtc" />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Notes</mat-label>
+      <textarea matInput rows="3" formControlName="notes"></textarea>
+    </mat-form-field>
+
+    <section class="booking-dialog__section">
+      <div class="booking-dialog__section-header">
+        <div>
+          <h3>Service lines</h3>
+          <p>Each line uses location-specific pricing from the catalog workspace.</p>
+        </div>
+
+        <button mat-stroked-button type="button" (click)="addLine()">Add line</button>
+      </div>
+
+      <div class="booking-dialog__stack" formArrayName="lines">
+        @for (line of lineRows.controls; track $index) {
+          <div class="booking-dialog__row" [formGroupName]="$index">
+            <mat-form-field appearance="outline">
+              <mat-label>Service</mat-label>
+              <mat-select formControlName="catalogItemId">
+                @for (service of data.options.services; track service.id) {
+                  <mat-option [value]="service.id">
+                    {{ service.name }} - {{ service.code }} - {{ service.durationInMinutes }} min
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Quantity</mat-label>
+              <input matInput type="number" formControlName="quantity" />
+            </mat-form-field>
+
+            <button mat-icon-button type="button" (click)="removeLine($index)" [disabled]="lineRows.length === 1">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <p class="booking-dialog__summary">
+        Estimated duration: <strong>{{ estimateDuration() }} min</strong>
+        <span>Estimated total: <strong>{{ estimateAmount() }}</strong></span>
+      </p>
+    </section>
+
+    @if (submissionError()) {
+      <p class="booking-dialog__error">{{ submissionError() }}</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">Cancel</button>
+  <button mat-flat-button type="button" (click)="submit()">Create booking</button>
+</mat-dialog-actions>

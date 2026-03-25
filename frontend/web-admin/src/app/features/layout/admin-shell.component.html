@@ -46,6 +46,26 @@
           Catalog and pricing
         </a>
       }
+
+      @if (canViewCustomers()) {
+        <a
+          class="shell__nav-link"
+          routerLink="/customers"
+          routerLinkActive="shell__nav-link--active"
+        >
+          Customers
+        </a>
+      }
+
+      @if (canViewBookings()) {
+        <a
+          class="shell__nav-link"
+          routerLink="/bookings"
+          routerLinkActive="shell__nav-link--active"
+        >
+          Bookings
+        </a>
+      }
     </nav>
 
     <div class="shell__sidebar-footer">

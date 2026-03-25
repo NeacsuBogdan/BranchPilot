@@ -2,7 +2,7 @@
 
 BranchPilot is a portfolio-grade multi-tenant business operations platform for companies with one or more locations.
 
-Stage 3 extends the product foundation with tenant-safe catalog management, location-specific pricing, and time-bound promotions:
+Stage 4 extends the product foundation with customer operations, service bookings, and dashboard visibility:
 
 - ASP.NET Core 9 backend split into `Domain`, `Application`, `Infrastructure`, and `Api`
 - Angular 19 admin app with standalone components, signals, Angular Material, ESLint, Prettier, and Playwright
@@ -13,7 +13,9 @@ Stage 3 extends the product foundation with tenant-safe catalog management, loca
 - permission-based authorization policies and protected user-management endpoints
 - tenant-scoped catalog categories, tax profiles, products, and services
 - location-specific pricing and promotion windows with business-rule validation
-- protected admin dashboard, team management, and catalog workspace
+- tenant-scoped customers with explicit booking history constraints
+- service booking workflow with confirm, complete, reschedule, and cancel actions
+- protected admin dashboard, team management, catalog, customer, and booking workspaces
 - Swagger, health checks, Serilog, solution wiring, and base CI
 
 ## Branching model
@@ -100,7 +102,7 @@ The registration flow at `/auth/register` creates:
 - one location assignment for that owner
 - one authenticated session with access and refresh tokens
 
-## Stage 3 scope
+## Stage 4 scope
 
 Implemented in this stage:
 
@@ -109,12 +111,15 @@ Implemented in this stage:
 - catalog item create and update flows for products and services
 - location-specific pricing with single-currency enforcement per item
 - date-ranged promotions with overlap validation
-- seeded demo catalog data for portfolio walkthroughs
-- protected Angular catalog workspace with loading, empty, and error states
+- customer CRUD with booking-history delete protection
+- service booking creation, confirmation, completion, rescheduling, and cancellation
+- dashboard summary widgets and upcoming-booking visibility
+- seeded demo customers and bookings for portfolio walkthroughs
+- protected Angular customer and booking workspaces with loading, empty, and error states
 
 Not implemented yet:
 
-- customers, bookings, reporting, audit, and background jobs
+- reporting, audit, and background jobs
 
 ## Verification
 

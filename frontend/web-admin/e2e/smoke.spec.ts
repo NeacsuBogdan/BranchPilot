@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('signs in, opens the dashboard, and reaches team management and catalog', async ({ page }) => {
+test('signs in, opens the dashboard, and reaches team, catalog, customers, and bookings', async ({ page }) => {
   const session = {
     user: {
       id: '17f1f0c0-7d73-4a8e-92a7-9e9ef9330d89',
@@ -37,6 +37,10 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
         'locations.manage',
         'catalog.view',
         'catalog.manage',
+        'customers.view',
+        'customers.manage',
+        'bookings.view',
+        'bookings.manage',
         'users.view',
         'users.manage',
       ],
@@ -76,6 +80,10 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
             'locations.manage',
             'catalog.view',
             'catalog.manage',
+            'customers.view',
+            'customers.manage',
+            'bookings.view',
+            'bookings.manage',
             'users.view',
             'users.manage',
           ],
@@ -110,6 +118,10 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
             'locations.manage',
             'catalog.view',
             'catalog.manage',
+            'customers.view',
+            'customers.manage',
+            'bookings.view',
+            'bookings.manage',
             'users.view',
             'users.manage',
           ],
@@ -144,6 +156,10 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
         'locations.manage',
         'catalog.view',
         'catalog.manage',
+        'customers.view',
+        'customers.manage',
+        'bookings.view',
+        'bookings.manage',
         'users.view',
         'users.manage',
       ],
@@ -158,11 +174,118 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
         'locations.manage',
         'catalog.view',
         'catalog.manage',
+        'customers.view',
+        'customers.manage',
+        'bookings.view',
+        'bookings.manage',
         'users.view',
         'users.manage',
       ],
     },
   ];
+
+  const dashboardSummary = {
+    activeCustomers: 3,
+    scheduledBookings: 1,
+    confirmedBookings: 1,
+    nextSevenDaysBookings: 2,
+    upcomingBookings: [
+      {
+        id: 'f12e53ab-bbda-4d80-baf5-e93f80b7924c',
+        number: 'BK-DEMO-001',
+        status: 'Scheduled',
+        customerName: 'Elena Marin',
+        locationName: 'Bucharest Central',
+        startsAtUtc: '2026-03-27T09:00:00Z',
+        endsAtUtc: '2026-03-27T09:45:00Z',
+      },
+    ],
+  };
+
+  const customersPage = {
+    items: [
+      {
+        id: 'f12e53ab-bbda-4d80-baf5-e93f80b7924c',
+        firstName: 'Elena',
+        lastName: 'Marin',
+        fullName: 'Elena Marin',
+        email: 'elena.marin@northwind.demo',
+        phoneNumber: '+40 721 100 200',
+        notes: 'Repeat enterprise customer.',
+        isActive: true,
+        bookingCount: 2,
+        createdAtUtc: '2026-03-01T10:00:00Z',
+      },
+    ],
+    page: 1,
+    pageSize: 10,
+    totalCount: 1,
+  };
+
+  const bookingOptions = {
+    customers: [
+      {
+        id: 'f12e53ab-bbda-4d80-baf5-e93f80b7924c',
+        fullName: 'Elena Marin',
+        email: 'elena.marin@northwind.demo',
+      },
+    ],
+    locations: [
+      {
+        id: 'ab1e53ab-bbda-4d80-baf5-e93f80b7924c',
+        name: 'Bucharest Central',
+        code: 'BUC-CENTRAL',
+        timeZone: 'Europe/Bucharest',
+      },
+      {
+        id: '90888e1b-b596-40a1-9092-3ca6f2e8c2cf',
+        name: 'Cluj North',
+        code: 'CLJ-NORTH',
+        timeZone: 'Europe/Bucharest',
+      },
+    ],
+    services: [
+      {
+        id: 'd12e53ab-bbda-4d80-baf5-e93f80b7924c',
+        name: 'Premium Consultation',
+        code: 'CONSULT-PREMIUM',
+        durationInMinutes: 45,
+        locationPrices: [
+          {
+            locationId: 'ab1e53ab-bbda-4d80-baf5-e93f80b7924c',
+            priceAmount: 220,
+            currencyCode: 'EUR',
+          },
+        ],
+      },
+    ],
+  };
+
+  const bookingsPage = {
+    items: [
+      {
+        id: 'g12e53ab-bbda-4d80-baf5-e93f80b7924c',
+        number: 'BK-DEMO-001',
+        status: 'Scheduled',
+        startsAtUtc: '2026-03-27T09:00:00Z',
+        endsAtUtc: '2026-03-27T09:45:00Z',
+        notes: 'Premium consultation for next-day operations review.',
+        customer: bookingOptions.customers[0],
+        location: {
+          id: 'ab1e53ab-bbda-4d80-baf5-e93f80b7924c',
+          name: 'Bucharest Central',
+          code: 'BUC-CENTRAL',
+        },
+        totalAmount: 220,
+        currencyCode: 'EUR',
+        totalDurationInMinutes: 45,
+        lineCount: 1,
+      },
+    ],
+    page: 1,
+    pageSize: 10,
+    totalCount: 1,
+  };
 
   const catalogOptions = {
     categories: [
@@ -328,6 +451,34 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
     });
   });
 
+  await page.route('**/api/dashboard/summary', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(dashboardSummary),
+    });
+  });
+
+  await page.route(/\/api\/customers(\?.*)?$/, async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(customersPage),
+    });
+  });
+
+  await page.route('**/api/bookings/options', async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(bookingOptions),
+    });
+  });
+
+  await page.route(/\/api\/bookings(\?.*)?$/, async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify(bookingsPage),
+    });
+  });
+
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible();
@@ -337,7 +488,7 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
     page.getByRole('heading', { level: 1, name: 'Northwind Operations Group' }),
   ).toBeVisible();
   await expect(page.getByText('owner@branchpilot.demo', { exact: true }).first()).toBeVisible();
-  await expect(page.getByRole('cell', { name: 'Bucharest Central' })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Bucharest Central' }).first()).toBeVisible();
 
   await page.getByRole('link', { name: 'Team management' }).click();
 
@@ -354,4 +505,16 @@ test('signs in, opens the dashboard, and reaches team management and catalog', a
   ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add item' })).toBeVisible();
   await expect(page.getByRole('cell', { name: 'Premium Consultation CONSULT-PREMIUM' })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Customers' }).click();
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Customers' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add customer' })).toBeVisible();
+  await expect(page.getByText('Elena Marin', { exact: true })).toBeVisible();
+
+  await page.getByRole('link', { name: 'Bookings' }).click();
+
+  await expect(page.getByRole('heading', { level: 1, name: 'Bookings' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Create booking' })).toBeVisible();
+  await expect(page.getByText('BK-DEMO-001', { exact: true })).toBeVisible();
 });

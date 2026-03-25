@@ -23,6 +23,8 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
 
     public DbSet<AppUser> Users => Set<AppUser>();
 
+    public DbSet<Customer> Customers => Set<Customer>();
+
     public DbSet<Category> Categories => Set<Category>();
 
     public DbSet<TaxProfile> TaxProfiles => Set<TaxProfile>();
@@ -32,6 +34,10 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
     public DbSet<LocationPrice> LocationPrices => Set<LocationPrice>();
 
     public DbSet<Promotion> Promotions => Set<Promotion>();
+
+    public DbSet<Booking> Bookings => Set<Booking>();
+
+    public DbSet<BookingLine> BookingLines => Set<BookingLine>();
 
     public DbSet<Membership> Memberships => Set<Membership>();
 
@@ -52,6 +58,11 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
             .HasQueryFilter(user =>
                 _currentUserContext.TenantId.HasValue &&
                 user.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<Customer>()
+            .HasQueryFilter(customer =>
+                _currentUserContext.TenantId.HasValue &&
+                customer.TenantId == _currentUserContext.TenantId.Value);
 
         modelBuilder.Entity<Category>()
             .HasQueryFilter(category =>
@@ -77,6 +88,16 @@ public sealed class BranchPilotDbContext : DbContext, IApplicationDbContext
             .HasQueryFilter(promotion =>
                 _currentUserContext.TenantId.HasValue &&
                 promotion.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<Booking>()
+            .HasQueryFilter(booking =>
+                _currentUserContext.TenantId.HasValue &&
+                booking.TenantId == _currentUserContext.TenantId.Value);
+
+        modelBuilder.Entity<BookingLine>()
+            .HasQueryFilter(bookingLine =>
+                _currentUserContext.TenantId.HasValue &&
+                bookingLine.TenantId == _currentUserContext.TenantId.Value);
 
         modelBuilder.Entity<Membership>()
             .HasQueryFilter(membership =>

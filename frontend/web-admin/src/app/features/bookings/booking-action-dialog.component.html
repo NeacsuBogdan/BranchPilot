@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>
+  {{ isRescheduleMode() ? 'Reschedule booking' : 'Cancel booking' }}
+</h2>
+
+<mat-dialog-content class="booking-action-dialog">
+  <form [formGroup]="form" class="booking-action-dialog__form">
+    <p class="booking-action-dialog__reference">
+      {{ data.booking.number }} for {{ data.booking.customer.fullName }}
+    </p>
+
+    @if (isRescheduleMode()) {
+      <mat-form-field appearance="outline">
+        <mat-label>New start time</mat-label>
+        <input matInput type="datetime-local" formControlName="startsAtUtc" />
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ isRescheduleMode() ? 'Reason (optional)' : 'Cancellation reason' }}</mat-label>
+      <textarea matInput rows="3" formControlName="reason"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">Back</button>
+  <button mat-flat-button type="button" (click)="submit()">
+    {{ isRescheduleMode() ? 'Save schedule' : 'Cancel booking' }}
+  </button>
+</mat-dialog-actions>

@@ -1,6 +1,6 @@
 # Architecture
 
-BranchPilot is being built as a modular monolith for the MVP. Stage 3 extends the foundation with tenant-safe catalog management, location-specific pricing, and promotion workflows without prematurely introducing distributed complexity.
+BranchPilot is being built as a modular monolith for the MVP. Stage 4 extends the foundation with customer operations, service bookings, and dashboard visibility without prematurely introducing distributed complexity.
 
 ## Backend
 
@@ -20,16 +20,19 @@ Current API bootstrap includes:
 - Serilog console logging
 - clean project references aligned to the intended architecture
 
-Stage 3 application flow:
+Stage 4 application flow:
 
 - `AuthController` handles tenant registration, login, refresh, logout, and current-session lookup
 - `LocationService` enforces tenant-scoped location access and creation
 - `UserManagementService` owns paged user listing, user creation, membership updates, and last-owner protection
 - `CatalogController` exposes catalog reference data, paged catalog items, and create or update commands behind explicit catalog permissions
 - `CatalogService` applies tenant boundaries, validates category and tax profile references, enforces pricing consistency, and prevents overlapping promotions per item and location
+- `CustomersController` and `CustomerService` provide tenant-scoped customer CRUD with delete protection when booking history exists
+- `BookingsController` and `BookingService` create service bookings from catalog pricing, enforce overlap rules, and handle confirm, complete, reschedule, and cancel transitions
+- `DashboardController` and `DashboardService` aggregate customer and booking counters plus upcoming workload for the admin dashboard
 - `PermissionAuthorizationHandler` translates membership roles into explicit permission checks at the API boundary
-- `BranchPilotDbContext` applies query filters to tenant-owned entities such as `Location`, `AppUser`, `Membership`, `MembershipLocation`, `RefreshToken`, `Category`, `TaxProfile`, `CatalogItem`, `LocationPrice`, and `Promotion`
-- `DemoDataSeeder` creates a realistic demo tenant with two locations, owner/admin users, memberships, location assignments, and seeded catalog records for local development and portfolio demos
+- `BranchPilotDbContext` applies query filters to tenant-owned entities such as `Location`, `AppUser`, `Customer`, `Booking`, `BookingLine`, `Membership`, `MembershipLocation`, `RefreshToken`, `Category`, `TaxProfile`, `CatalogItem`, `LocationPrice`, and `Promotion`
+- `DemoDataSeeder` creates a realistic demo tenant with two locations, owner/admin users, memberships, location assignments, catalog records, customers, and bookings for local development and portfolio demos
 
 ## Frontend
 
@@ -41,7 +44,7 @@ Stage 3 application flow:
 - ESLint + Prettier
 - Playwright
 
-Stage 3 frontend responsibilities:
+Stage 4 frontend responsibilities:
 
 - public login and organization registration routes
 - signal-driven auth state persisted to local storage
@@ -51,6 +54,8 @@ Stage 3 frontend responsibilities:
 - permission-aware navigation and route guards
 - team management page with search, pagination, and access dialogs
 - catalog workspace with reference-data forms, item filters, pagination, and create or edit dialogs for pricing and promotions
+- customer workspace with search, status filters, and create or edit dialogs
+- booking workspace with filters, create dialog, and lifecycle actions for confirm, complete, reschedule, and cancel
 
 ## Local infrastructure
 

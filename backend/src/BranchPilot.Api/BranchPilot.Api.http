@@ -99,6 +99,12 @@ Content-Type: application/json
 
 ###
 
+GET {{BranchPilot_Api_HostAddress}}/api/dashboard/summary
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
 GET {{BranchPilot_Api_HostAddress}}/api/catalog/options
 Authorization: Bearer {{AccessToken}}
 Accept: application/json
@@ -162,6 +168,84 @@ Content-Type: application/json
       "endsAtUtc": "2026-04-02T20:00:00Z"
     }
   ]
+}
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/customers?page=1&pageSize=10&search=elena
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/customers
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "firstName": "Elena",
+  "lastName": "Marin",
+  "email": "elena.marin@northwind.test",
+  "phoneNumber": "+40 721 100 200",
+  "notes": "Repeat enterprise customer."
+}
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/bookings/options
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+GET {{BranchPilot_Api_HostAddress}}/api/bookings?page=1&pageSize=10&status=Scheduled
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/bookings
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "customerId": "44444444-4444-4444-4444-444444444444",
+  "locationId": "33333333-3333-3333-3333-333333333333",
+  "startsAtUtc": "2026-03-30T09:00:00Z",
+  "notes": "Premium consultation for next-week branch review.",
+  "lines": [
+    {
+      "catalogItemId": "55555555-5555-5555-5555-555555555555",
+      "quantity": 1
+    }
+  ]
+}
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/bookings/66666666-6666-6666-6666-666666666666/confirm
+Authorization: Bearer {{AccessToken}}
+Accept: application/json
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/bookings/66666666-6666-6666-6666-666666666666/reschedule
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "startsAtUtc": "2026-03-30T12:00:00Z",
+  "reason": "Customer requested an afternoon slot."
+}
+
+###
+
+POST {{BranchPilot_Api_HostAddress}}/api/bookings/66666666-6666-6666-6666-666666666666/cancel
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+{
+  "reason": "Customer is unavailable."
 }
 
 ###
